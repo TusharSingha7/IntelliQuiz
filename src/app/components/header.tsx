@@ -15,7 +15,7 @@ export default function Header() {
                 width={50}
                 height={50}
               ></Image>
-              <span className='text-4xl font-bold text-white'>IntelliQuiz</span>
+              <Link className='text-4xl font-bold text-white' href={'/'}>IntelliQuiz</Link>
             </div>
             <div className='flex-1 flex justify-end gap-5 pr-5 items-center text-white text-xl'>
               <Link href='/home'>Home</Link>
