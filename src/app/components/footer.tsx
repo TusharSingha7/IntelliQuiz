@@ -4,7 +4,7 @@ import img from '@/public/vercel.svg'
 
 export default function Footer() {
     return <>
-        <div className="min-h-48 bg-black flex flex-col justify-between text-white border-t-2">
+        <div className="min-h-32 bg-black flex flex-col justify-between text-white">
             <div className="flex ">
                 <div className="flex-1 pl-6 pt-6">
                     <h1 className='text-2xl font-bold'>IntelliQuiz</h1>

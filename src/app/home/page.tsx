@@ -1,8 +1,10 @@
 'use client'
+import VantaBackground from "../components/birdsBack"
 export default function HomePage() {
-    return (
+    return ( <VantaBackground>
         <div>
-            Welcome to IntelliQuiz!
+            HI there from home page
         </div>
+    </VantaBackground>
     )
 }
