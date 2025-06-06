@@ -7,7 +7,7 @@ export default function CreateQuizPopup({func} : {
 }) {
     const [username,setUsername] = useState<string>("");
     const [topicName,setTopicName] = useState<string>("");
-    const [count,setCount] = useState<Number>(0);
+    const [count,setCount] = useState<number>(0);
     const router = useRouter();
 
     return <>

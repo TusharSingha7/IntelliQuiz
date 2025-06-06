@@ -7,7 +7,6 @@ import React from "react";
 function DefaultCompo({room_id , flag , setter} : {room_id : string , flag : Boolean , setter : React.Dispatch<React.SetStateAction<Boolean>>}) {
     const router = useRouter();
 
-
     return <>
         <div className="flex">
             <div className="font-bold text-2xl p-2 grow-[6] pr-10 flex justify-end items-center">

@@ -11,7 +11,7 @@ export default function VantaBackground({ children , value = "RINGS" }: { childr
   const vantaRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
-  const [vantaAvailable,setVantaAvailable] = useState<Boolean | null>(null);
+  const [vantaAvailable,setVantaAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     setMounted(true);

@@ -3,8 +3,6 @@ import './globals.css';
 import Header from './components/header';
 import Footer from './components/footer';
 import Script from 'next/script';
-import VantaBackground from './components/birdsBack';
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,11 +20,9 @@ export default function RootLayout({
       </head>
       <body className="h-full flex flex-col">
         <Header/>
-          <Suspense>
-                <div className="flex-1 min-h-screen">
-                        {children}
-                </div>
-          </Suspense>
+            <div className="flex-1 min-h-screen">
+                    {children}
+            </div>
         <Footer/>
       </body>
     </html>

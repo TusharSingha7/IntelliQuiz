@@ -1,6 +1,4 @@
 'use client'
-import brain from '@/public/AI-Image-BXtjzV1W.png'
-import Image from 'next/image';
 import VantaBackground from './components/birdsBack';
 
 export default function Home() {
