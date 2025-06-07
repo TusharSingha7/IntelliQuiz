@@ -16,7 +16,7 @@ export default function Enter() {
                 <button className="border w-56 mx-auto p-4 font-bold border">AI Generated Quiz</button>
                 <button className="border w-56 mx-auto p-4 font-bold border" onClick={()=>{
                     setCreate(true);
-                }}>Create Multiplayer Quiz</button>
+                }}>Create AI Generated Multiplayer Quiz</button>
                 <button className="border w-56 mx-auto p-4 font-bold border" onClick={()=>{
                     setJoin(true);
                 }}>Join Multiplayer Quiz</button>

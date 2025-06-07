@@ -1,11 +1,47 @@
 
 'use client'
 import { useRouter } from "next/navigation";
-import { useState} from "react";
+import { useEffect, useRef , useState} from "react";
 import React from "react";
 
-function DefaultCompo({room_id , flag , setter} : {room_id : string , flag : Boolean , setter : React.Dispatch<React.SetStateAction<Boolean>>}) {
+export default function RoomPage({params} : {
+    params : Promise<{room_id : string}>
+}) {
+    const {room_id} = React.use(params);
     const router = useRouter();
+    const socket = useRef<WebSocket>(null);
+    const [code,setCode] = useState<number>(0);
+
+    useEffect(()=>{
+        
+        try {
+            const client = new WebSocket('');
+            socket.current = client;
+
+            socket.current.addEventListener('open',(e)=>{
+                console.log("connection Established");
+
+            });
+
+            socket.current.addEventListener('message',(e)=>{
+                const message = e.data;
+
+            })
+
+            socket.current.addEventListener('close',(e)=>{
+                console.log("connection closed");
+            })
+
+            socket.current.addEventListener('error',(e)=>{
+                console.log(e);
+            })
+        }
+        catch(e) {
+            setCode(0);
+            console.log(e);
+        }
+
+    })
 
     return <>
         <div className="flex">
@@ -17,12 +53,10 @@ function DefaultCompo({room_id , flag , setter} : {room_id : string , flag : Boo
                     //do server side logic here  
                     router.push('/enter')
                 }}>Exit</button>
-                {flag && <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg" onClick={()=>{
-                    //start the quiz 
-                    setter(true);
+                <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg" onClick={()=>{
                 }}>
                     Start Quiz
-                    </button>}
+                    </button>
             </div>
         </div>
         <div className="h-[100vh] bg-red-400">
@@ -33,23 +67,5 @@ function DefaultCompo({room_id , flag , setter} : {room_id : string , flag : Boo
                 <li>HI there</li>
             </ul>
         </div>
-    </>
-}
-
-function MCQ() {
-    return <>
-        Hi This is an MCQ componeent which should be Imported indeally from other component
-    </>
-}
-
-export default function RoomPage({params} : {
-    params : Promise<{room_id : string}>
-}) {
-    const {room_id} = React.use(params);
-    const [quizState,setQuizState] = useState<Boolean>(false);
-    const [flag,setFlag] = useState<Boolean>(true);
-
-    return <>
-        {quizState ? <MCQ/> : <DefaultCompo room_id={room_id} flag={flag} setter={setQuizState} />}
     </>
 }

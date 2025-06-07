@@ -6,3 +6,8 @@ export interface mcq_type {
     option3 : string,
     option4 : string
 }
+
+export interface communication {
+    code : number,
+    data : any
+}

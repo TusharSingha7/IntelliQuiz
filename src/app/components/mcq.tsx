@@ -1,5 +1,5 @@
 'use client'
-import { mcq_type } from "../types"
+import { mcq_type } from "../lib"
 
 export default function MCQ(props : mcq_type){
     return (<>
