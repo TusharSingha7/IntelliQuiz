@@ -171,6 +171,50 @@ else if(code == 3) {
     })
 }
 
+else if(code == 4) {
+    //exit the room logic 
+    //fethc the room the user is in curently 
+    const response = await client.get(`${userId}`);
+    if(response) {
+        //delete the user entry 
+        await client.del(`${userId}`);
+        //remove from clinets , leaderboards ( time and score , final and normal)
+        //delete the room if room becomes empty 
+        await client.hDel(`${response}:clients`,userId);
+        //remove from leaderboards
+        await client.zRem(`${response}:leaderboardScore`, userId);
+        await client.zRem(`${response}:finalLeaderboardScore`, userId);
+        await client.zRem(`${response}:leaderboardTime`, userId);
+        await client.zRem(`${response}:finalLeaderboardTime`, userId);
+        //delete the room if host leaves the room 
+        const room_detail = await client.get(`${response}`);
+        const data = JSON.parse(room_detail!);
+        if(data.userId == userId) {
+            //delete the room host left the room 
+            await client.del(`${response}:leaderboardScore`);
+            await client.del(`${response}:finalLeaderboardScore`);
+            await client.del(`${response}:leaderboardTime`);
+            await client.del(`${response}:finalLeaderboardTime`);
+            await client.del(`${response}:clients`);
+            await client.del(`${response}`);
+        } 
+        return new NextResponse(JSON.stringify({
+            room_id : response,
+            code : 1,
+            message : "user exited from the room"
+        }),{
+            status : 200
+        });
+    }
+    return new NextResponse(JSON.stringify({
+        room_id : null,
+        code : 0,
+        message : "user is not in any room"
+    }),{
+        status : 404
+    });
+}
+
 return new NextResponse(JSON.stringify({
     code : 0,
     message : "Invalid code",
