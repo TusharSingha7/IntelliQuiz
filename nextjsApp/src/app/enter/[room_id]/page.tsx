@@ -7,7 +7,7 @@ import { mcq_type } from "../../lib";
 import Leaderboard from "../../components/leaderboard";
 import FLeaderboard from "../../components/fLeaderboard";
 import axios from "axios";
-import UnAuth from "../../components/unauthorized";
+import LoadingUI from "../../components/loading";
 
 export default function RoomPage({params} : {
     params : Promise<{room_id : string}>
@@ -16,16 +16,18 @@ export default function RoomPage({params} : {
     const router = useRouter();
     const socket = useRef<WebSocket>(null);
     const [question , setQuestion] = useState<mcq_type>({
-        question : "default question",
-        option1 : "A",
-        option2 : "B",
-        option3 : "C",
-        option4 : "D"
+        question : "default question afasdfasf asfdasfaf asfdasfasfdaas a fsasf",
+        options : ['first' , 'second' , 'third' , 'fourth'],
+        answer : 'third'
     });
-    const [code,setCode] = useState<number>(0);
+    const [code,setCode] = useState<number>(1);
     const [showLeader , setShowLeader] = useState<boolean>(false);
-    const [leaderboardDataTime , setLeaderBoardDataTime] = useState({});
-    const [leaderboardDataScore , setLeaderBoardDataScore] = useState({});
+    const [leaderboardDataTime , setLeaderBoardDataTime] = useState<{score : number, value : string}[]>([
+        {value : '12_3' ,score : 5}
+    ]);
+    const [leaderboardDataScore , setLeaderBoardDataScore] = useState<{score : number , value : string}[]>([{
+        value : '12_3' ,score : 400
+    }]);
     const [userList,setUserList] = useState<object>({});
     const [showStarButton , setStartButton] = useState<boolean>(false);
 
@@ -66,13 +68,7 @@ export default function RoomPage({params} : {
                 else if(message.code == 1) {
                     //a questino came render on screen 
                     const ques = message.data;
-                    setQuestion({
-                        question : ques.question,
-                        option1 : ques.options[0],
-                        option2 : ques.options[1],
-                        option3 : ques.options[2],
-                        option4 : ques.options[3],
-                    })
+                    setQuestion(ques)
                     setCode(1);
                     setShowLeader(false);
                 }
@@ -88,6 +84,7 @@ export default function RoomPage({params} : {
                     setLeaderBoardDataTime(message.data.fleaderboardTime);
                     setLeaderBoardDataScore(message.data.fleaderboardScore);
                     setCode(2);
+                    setShowLeader(false);
                 }
 
             })
@@ -109,19 +106,6 @@ export default function RoomPage({params} : {
         }
     },[])
 
-    if(code == 1) {
-        //render question here on which user can click
-        return <>
-            {showLeader && <Leaderboard/>}
-            <MCQ props={question} />
-        </>
-    }
-
-    else if(code == 2) {
-        //render final leaderboard
-        return <FLeaderboard/>
-    }
-    else if(code == 4) {
         return <>
         <div className="flex">
             <div className="font-bold text-2xl p-2 grow-[6] pr-10 flex justify-end items-center">
@@ -131,14 +115,10 @@ export default function RoomPage({params} : {
                 <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg mr-2" onClick={async ()=>{
                     //do server side logic here  
                     try {
-                            const response = await axios.post('/api/v2',{
-                            userId : localStorage.getItem("intelli-quiz-userId"),
-                            code : 4,
-                            username : localStorage.getItem('username'),
-                            topicDescription : "",
-                            room_id : room_id,
-                            questionsCount : 0
-                            })
+                        socket.current?.send(JSON.stringify({
+                            code : 3,
+                            userId : `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`
+                        }));
                     }catch(error) {
                         console.log(error);
                     }
@@ -154,24 +134,24 @@ export default function RoomPage({params} : {
                     room_id : room_id,
                     questionsCount : 0
                 });
+                if(response) setStartButton(false);
                 }}>
                     Start Quiz
                     </button>}
             </div>
         </div>
-        <div className="h-[100vh] bg-red-400">
-            <ul className="flex flex-col items-center bg-red-800 p-2 rounded h-full overflow-y-auto w-full">
-                {Object.entries(userList).map(([user, role]) => (
-                    <li key={user}>{user} ({role})</li>
-                ))}
-            </ul>
+        <div className="h-screen relative">
+            {code == 4 ? (
+                <ul className="flex flex-col items-center bg-red-800 p-2 rounded h-full overflow-y-auto w-full">
+                    {Object.entries(userList).map(([user, role]) => (
+                        <li key={user}>{user} ({role})</li>
+                    ))}
+                </ul>
+            ) : code == 1 ? (<>
+                {showLeader && <Leaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={localStorage.getItem("intelli-quiz-userId")!} />}
+                {!showLeader && <MCQ props={question} ref={socket} key={question.question} room_id={room_id} />}
+            </>) : code == 2 ? <FLeaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={localStorage.getItem("intelli-quiz-userId")!}/> : <LoadingUI/>}
         </div>
     </>
-    }
-
-    else {
-        return <UnAuth/>
-    }
-
     
 }

@@ -11,8 +11,8 @@ export default function Enter() {
     return <>
     <VantaBackground value='GLOBE'>
     {showCreate && <CreateQuizPopup func={setCreate}/>}
-    <div className="grid grid-cols-2 h-full text-white">
-        <div className="flex flex-col gap-4 min-h-full justify-center">
+    <div className="grid grid-cols-2 h-screen text-white">
+        <div className="flex flex-col gap-4 min-h-screen justify-center">
                 <button className="border w-56 mx-auto p-4 font-bold border">AI Generated Quiz</button>
                 <button className="border w-56 mx-auto p-4 font-bold border" onClick={()=>{
                     setCreate(true);

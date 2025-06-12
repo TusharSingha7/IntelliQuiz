@@ -9,7 +9,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="min-h-full">
       <head>
         <Script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js' strategy='beforeInteractive'></Script>
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.rings.min.js' strategy='beforeInteractive'></Script>
@@ -18,11 +18,11 @@ export default function RootLayout({
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js' strategy='beforeInteractive'></Script>
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js' strategy='beforeInteractive'></Script>
       </head>
-      <body className="h-full flex flex-col">
+      <body className="min-h-screen flex flex-col max-w-screen overflow-x-hidden">
         <Header/>
-            <div className="flex-1 min-h-screen">
-                    {children}
-            </div>
+          <div className="flex-1 overflow-y-auto">
+                  {children}
+          </div>
         <Footer/>
       </body>
     </html>

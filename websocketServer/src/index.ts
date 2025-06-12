@@ -16,13 +16,13 @@ const subscribedChannels = new Set<string>();
 const roomMemberCount = new Map<string,number>();
 const room_map = new Map<string,string>();
 
+let flag = true;
 
 async function main() {
     if (!client.isOpen) await client.connect();
     if (!subscriber.isOpen) await subscriber.connect();
 }
 main()
-
 
 async function subscribeHandler(res : communication) {
     //push the message to the socket of the userId
@@ -34,11 +34,10 @@ async function subscribeHandler(res : communication) {
     const list = await client.hGetAll(`${channel}:clients`);
     const data = JSON.parse(message);
 
-    // console.log(data);
-
+        flag = false;
         for(const ques in data) {
             const org = data[ques];
-            console.log(org);
+            // console.log(org);
             for(const id in list) {
                 const socket = socketMap.get(id);
                 if(socket && socket.OPEN) {
@@ -46,7 +45,9 @@ async function subscribeHandler(res : communication) {
                         code : 1,
                         data : org
                     }));
-                    client.hSet(`${id}:quesTime`,ques,JSON.stringify(new Date()));
+                    client.hSet(`${id}:quesTime`,JSON.stringify(org),JSON.stringify(new Date()));
+                    console.log(id);
+                    console.log(JSON.stringify(org));
                 }
             }
             //wait 5 sec
@@ -80,19 +81,89 @@ async function subscribeHandler(res : communication) {
         for(const id in list) {
             if(list[id] == "Host") hostId = id;
             const socket = socketMap.get(id);
-                if(socket && socket.OPEN) {
-                    socket.send(JSON.stringify({
-                        code : 3,
-                        data : {
-                            fleaderboardScore,
-                            fleaderboardTime
-                        }
-                    }));
-                }
+            if(socket && socket.OPEN) {
+                socket.send(JSON.stringify({
+                    code : 3,
+                    data : {
+                        fleaderboardScore,
+                        fleaderboardTime
+                    }
+                }));
+            }
         }
 
+        flag = true;
+
     });
-                    
+        
+}
+
+async function exitHandler(userId : string) {
+
+    const response = await client.get(userId);
+    if(response) {
+        //delete the user entry 
+        await client.del(userId);
+        //remove from clinets , leaderboards ( time and score , final and normal)
+        //delete the room if room becomes empty 
+        await client.hDel(`${response}:clients`,userId);
+        //remove from leaderboards
+        await client.zRem(`${response}:leaderboardScore`, userId);
+        await client.zRem(`${response}:finalLeaderboardScore`, userId);
+        await client.zRem(`${response}:leaderboardTime`, userId);
+        await client.zRem(`${response}:finalLeaderboardTime`, userId);
+        //delete the room if host leaves the room 
+        const room_detail = await client.get(`${response}`);
+        const data = JSON.parse(room_detail!);
+        if(data.userId == userId) {
+            //delete the room host left the room
+            await client.del(`${response}:leaderboardScore`);
+            await client.del(`${response}:finalLeaderboardScore`);
+            await client.del(`${response}:leaderboardTime`);
+            await client.del(`${response}:finalLeaderboardTime`);
+            const clinetsList = await client.hGetAll(`${response}:clients`)
+            await client.del(`${response}:clients`);
+            await client.del(`${response}:list`);
+            await client.del(`${response}`);
+            //delete entries for all clinets also 
+            for(const id in clinetsList) {
+                await client.del(id);
+            }
+        } 
+
+    }
+}
+
+async function responseSubmitHandler(userId:string , ques : {
+    question : string,
+    options : string[],
+    answer : string
+} , ans : string , room_id : string) {
+    const data = await client.hGet(`${userId}:quesTime`,JSON.stringify(ques));
+
+    await client.del(`${userId}:quesTime`)
+    if(data){
+        const timeSent = JSON.parse(data);
+        const time = new Date(timeSent);
+        const timeDiff = Math.abs(time.getTime() - (new Date()).getTime());
+        const timeInSeconds = (timeDiff / 1000);
+        const lostScore = 125*timeInSeconds;
+        let newScore = Math.max(0,1000 - lostScore);
+        //match the answer
+        if(ans != ques.answer) newScore = 0;
+        // console.log(newScore);
+        //update the leaderboard score accordingly
+        await client.zAdd(`${room_id}:leaderboardTime`,{
+            value : userId,
+            score : timeInSeconds
+        });
+        await client.zAdd(`${room_id}:leaderboardScore`,{
+            value : userId,
+            score : newScore
+        })
+        await client.zIncrBy(`${room_id}:finalLeaderboardScore`,newScore,userId)
+        await client.zIncrBy(`${room_id}:finalLeaderboardTime`,timeInSeconds,userId)
+    }
 }
 
 
@@ -107,8 +178,6 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
                 ? message.data
                 : message.data.toString()
         );
-
-        // console.log(res);
 
         if(res.code == 1) {
             //check connection authenticity
@@ -134,45 +203,26 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
             }
             const list = await client.hGetAll(`${res.data.room_id}:clients`);
             //push the list to everyone
-            for(const id in list) {
-                const socket = socketMap.get(id);
-                if(socket && socket.OPEN) {
-                    socket.send(JSON.stringify({
-                        code : 4,
-                        data : list
-                    }))
+            if(flag) {
+                for(const id in list) {
+                    const socket = socketMap.get(id);
+                    if(socket && socket.OPEN) {
+                        socket.send(JSON.stringify({
+                            code : 4,
+                            data : list
+                        }))
+                    }
                 }
             }
 
         }
         else if(res.code == 2) {
-            //reponse submitted towards a question calculate the time take to submit if questino 
-            //entry exits 
-            //get the question from res and time taken to respond
-            const data = await client.hGet(`${res.data.userId}`,res.data.ques);
-            await client.del(`${res.data.userId}`)
-            if(data){
-                const timeSent = JSON.parse(data || "");
-                const time = new Date(timeSent);
-                const timeDiff = Math.abs(time.getTime() - (new Date()).getTime());
-                const timeInSeconds = (timeDiff / 1000);
-                const lostScore = 200*timeInSeconds;
-                let newScore = Math.max(0,1000 - lostScore);
-                //match the answer
-                if(res.data.ans != res.data.ques.answer) newScore = 0;
-                //update the leaderboard score accordingly
-                await client.zAdd(`${res.data.room_id}:leaderboardTime`,{
-                    value : res.data.userId,
-                    score : timeInSeconds
-                });
-                await client.zAdd(`${res.data.room_id}:leaderboardScore`,{
-                    value : res.data.userId,
-                    score : newScore
-                })
-                await client.zIncrBy(`${res.data.room_id}:finalLeaderboardScore`,newScore,`${res.data.userId}`)
-                await client.zIncrBy(`${res.data.room_id}:finalLeaderboardTime`,timeInSeconds,`${res.data.userId}`)
-            }
-
+            //user responds to question
+            responseSubmitHandler(res.data.userId,res.data.ques,res.data.ans,res.data.room_id);
+        }
+        else if(res.code == 3) {
+            //user requesting to exit from room
+            exitHandler(res.data.userId)
         }
         
     }
@@ -192,5 +242,4 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
         }
 
     }
-
 })

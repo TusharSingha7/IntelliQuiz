@@ -51,9 +51,9 @@ export default function VantaBackground({ children , value = "RINGS" }: { childr
 
 
   if(vantaAvailable === null || vantaAvailable === true) return (
-    <div className="h-full w-full relative">
-        <div ref={vantaRef} className="h-full w-full absolute inset-0 z-0"></div>
-        <div className="relative z-10 h-full w-full">{children}</div>
+    <div className="min-h-screen max-w-screen overflow-x-hidden relative">
+        <div ref={vantaRef} className="min-h-screen absolute inset-0 z-0"></div>
+        <div className="relative z-10 min-h-screen">{children}</div>
     </div>
   );
 
@@ -62,7 +62,7 @@ export default function VantaBackground({ children , value = "RINGS" }: { childr
 }
 
 function FallbackCompo({children} : {children? : React.ReactNode}) {
-  return <div className="h-full relative">
+  return <div className="min-h-full relative">
       <div className="h-full w-full absolute inset-0 z-0 bg-gray-800"></div>
       <div className="relative z-10 h-full w-full">{children}</div>
   </div>
