@@ -5,6 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 export async function POST(req : NextRequest) {
 
 let client;
+const googleapi = process.env.NEXT_PUBLIC_GOOGLEAPI;
 
 try {
 client = createClient();
@@ -46,7 +47,7 @@ if(code == 1) {
             - If the topic is invalid, return only: __INVALID_TOPIC__ (no quotes, no formatting).
             `;
         let questions_list;
-        const ai = new GoogleGenAI({apiKey : process.env.NEXT_PUBLIC_googleapi});
+        const ai = new GoogleGenAI({apiKey : googleapi});
         const api_res = await ai.models.generateContent({
             model : 'gemini-2.0-flash-lite',
             contents : prompt
@@ -70,7 +71,7 @@ if(code == 1) {
         })
 
         //generate a random room id and store it in reddis
-        const roomId = (Math.random() * 10000000).toString();
+        const roomId = (Math.random() * 10000000).toFixed(0);
         await client.set(`${userId}_${username}`,roomId);
         //maintain a host table
         

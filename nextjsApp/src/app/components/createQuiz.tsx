@@ -3,8 +3,9 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction , useState} from "react";
 
-export default function CreateQuizPopup({func} : {
-    func : Dispatch<SetStateAction<boolean>>
+export default function CreateQuizPopup({func , loader} : {
+    func : Dispatch<SetStateAction<boolean>>,
+    loader : Dispatch<SetStateAction<boolean>>
 }) {
     const [username,setUsername] = useState<string>(localStorage.getItem('username') || "");
     const [topicDescription,setTopicName] = useState<string>("");
@@ -20,6 +21,7 @@ export default function CreateQuizPopup({func} : {
             <button className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
                 //fetch room id from backend and join this player 
                 //call for room creation here
+                loader(true);
                 localStorage.setItem('username' , username);
                 if(username.length < 1) alert("invalid username");
                 else {

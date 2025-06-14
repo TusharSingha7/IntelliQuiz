@@ -33,6 +33,7 @@ export default function RoomPage({params} : {
     const [showStarButton , setStartButton] = useState<boolean>(false);
     const [component , setComponent] = useState<React.JSX.Element>(<LoadingUI/>);
     const [user_id , setUserId] = useState<string>("default");
+    const websocket = process.env.NEXT_PUBLIC_WEBSOCKET;
 
     useEffect(() => {
         if (code === 0) {
@@ -70,7 +71,7 @@ export default function RoomPage({params} : {
         try {
             const id = `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`;
             setUserId(id);
-            const client = new WebSocket(`${process.env.NEXT_PUBLIC_websocket}`);
+            const client = new WebSocket(`${websocket}:8080`);
             socket.current = client;
             socket.current.addEventListener('open',(e)=>{
                 console.log("connection Established");
@@ -147,7 +148,7 @@ export default function RoomPage({params} : {
             </div>
             <div className=" grow-[4] pr-5 flex justify-end p-2">
                 <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg mr-2" onClick={async ()=>{
-                    //do server side logic here  
+                    //do server side logic here
                     try {
                         socket.current?.send(JSON.stringify({
                             code : 3,
