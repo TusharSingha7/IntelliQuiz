@@ -1,22 +1,28 @@
 'use client'
-import { useState } from "react"
+import { useEffect, useState , useRef } from "react"
 import { mcq_type } from "../lib"
 import ProgressBar from "./progressbar"
 
 export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : React.RefObject<WebSocket | null> ,room_id : string}){
-    const [status,setStatus] = useState<boolean>(false);
-    const [option , setOption] = useState<number>(0);
-    const onClickHandler = ()=> {
 
-        if(status == true) return;
-        setStatus(true);
+    const userId = `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`;
+    const clickedCheck = useRef(false);
+    const [option , setOption] = useState<number>(-1);
+    const [answered , setAnswered] = useState<boolean>(false);
+    useEffect(() => {
+        setOption(-1);
+        clickedCheck.current = false;
+    }, [props.question]);
+    const onClickHandler = (index : number)=> {
+        if(clickedCheck.current == true) return;
+        clickedCheck.current = true;
         const socket = ref.current;
         socket?.send(JSON.stringify({
             code : 2,
             data : {
-                ans : props.options[option],
+                ans : props.options[index],
                 ques : props,
-                userId : `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`,
+                userId : userId,
                 room_id : room_id
             }
         }))
@@ -30,22 +36,13 @@ export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : R
                     <ProgressBar resetkey={props.question} key={props.question} />
                 </div>
                 <div className="flex flex-col w-full ">
-                    <button className="text-left text-3xl border m-2 p-2 rounded" onClick={()=>{
-                        setOption(0);
-                        onClickHandler();
-                    }}>{props.options[0]}</button>
-                    <button className="text-left text-3xl border m-2 p-2 rounded" onClick={()=>{
-                        setOption(1);
-                        onClickHandler();
-                    }}>{props.options[1]}</button>
-                    <button className="text-left text-3xl border m-2 p-2 rounded" onClick={()=>{
-                        setOption(2);
-                        onClickHandler();
-                    }}>{props.options[2]}</button>
-                    <button className="text-left text-3xl border m-2 p-2 rounded" onClick={()=>{
-                        setOption(3);
-                        onClickHandler();
-                    }}>{props.options[3]}</button>
+                    {props.options.map((value , index)=>{
+                        return <button key={index} className={`text-left text-3xl border m-2 p-2 rounded ${option == index ? "bg-blue-400" : "bg-white"}`} onClick={()=>{
+                            setOption(index);
+                            setAnswered(true);
+                            onClickHandler(index);
+                        }} disabled = {answered} > {value}</button>
+                    })}
                 </div>
             </div>
         </div>

@@ -21,7 +21,6 @@ export default function CreateQuizPopup({func} : {
                 //fetch room id from backend and join this player 
                 //call for room creation here
                 localStorage.setItem('username' , username);
-                localStorage.setItem("intelli-quiz-userId" , "abcd");
                 if(username.length < 1) alert("invalid username");
                 else {
                     const response = await axios.post('/api/v2',{

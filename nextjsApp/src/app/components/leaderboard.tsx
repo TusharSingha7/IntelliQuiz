@@ -14,7 +14,7 @@ export default function Leaderboard({timeList , scoreList , userId } : {
     }
     
     return (<div className=" min-h-screen flex flex-col bg-gray-500 rounded justify-start ">
-            <h1 className="text-center text-4xl font-bold bg-red-400 block p-5">Leaderboard</h1>
+            <h1 className="text-center text-4xl font-bold block p-5">Leaderboard</h1>
                 <ol className="grid w-full p-5 items-center rounded">
                     <li className="grid grid-cols-4 text-2xl w-full justify-start rounded pb-2 font-bold">
                         <span className="text-center" >Rank</span>
@@ -24,7 +24,7 @@ export default function Leaderboard({timeList , scoreList , userId } : {
                     </li>
                     
                     {scoreList.map((ele , index) => {
-                    const [user_id, username] = ele.value.split("_");
+                    const [user_id, username] = ele.value.split('_');
 
                     return (
                     <li

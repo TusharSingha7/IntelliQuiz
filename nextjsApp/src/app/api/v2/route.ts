@@ -46,7 +46,7 @@ if(code == 1) {
             - If the topic is invalid, return only: __INVALID_TOPIC__ (no quotes, no formatting).
             `;
         let questions_list;
-        const ai = new GoogleGenAI({apiKey : `AIzaSyAGnA5_-ZePSyD7-la7_NQI-fe72iyFjgQ`});
+        const ai = new GoogleGenAI({apiKey : process.env.NEXT_PUBLIC_googleapi});
         const api_res = await ai.models.generateContent({
             model : 'gemini-2.0-flash-lite',
             contents : prompt

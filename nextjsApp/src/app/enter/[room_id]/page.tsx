@@ -2,12 +2,14 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef , useState} from "react";
 import React from "react";
-import MCQ from "../../components/mcq";
-import { mcq_type } from "../../lib";
-import Leaderboard from "../../components/leaderboard";
-import FLeaderboard from "../../components/fLeaderboard";
+import MCQ from "@/components/mcq";
+import { mcq_type } from "@/lib/index";
+import Leaderboard from "@/components/leaderboard";
+import FLeaderboard from "@/components/fLeaderboard";
 import axios from "axios";
-import LoadingUI from "../../components/loading";
+import LoadingUI from "@/components/loading";
+import UnAuth from "@/components/unauthorized";
+import {v4 as uuidv4} from 'uuid'
 
 export default function RoomPage({params} : {
     params : Promise<{room_id : string}>
@@ -20,8 +22,7 @@ export default function RoomPage({params} : {
         options : ['first' , 'second' , 'third' , 'fourth'],
         answer : 'third'
     });
-    const [code,setCode] = useState<number>(1);
-    const [showLeader , setShowLeader] = useState<boolean>(false);
+    const [code,setCode] = useState<number>(-1);
     const [leaderboardDataTime , setLeaderBoardDataTime] = useState<{score : number, value : string}[]>([
         {value : '12_3' ,score : 5}
     ]);
@@ -30,21 +31,53 @@ export default function RoomPage({params} : {
     }]);
     const [userList,setUserList] = useState<object>({});
     const [showStarButton , setStartButton] = useState<boolean>(false);
+    const [component , setComponent] = useState<React.JSX.Element>(<LoadingUI/>);
+    const [user_id , setUserId] = useState<string>("default");
 
-    let user_id : string;
+    useEffect(() => {
+        if (code === 0) {
+            socket.current?.close();
+            socket.current = null;
+            setComponent(<UnAuth/>)
+        }
+        else if(code == 1) {
+            setComponent(<MCQ props={question} ref={socket} room_id={room_id} />)
+        }
+        else if(code == 2) {
+            setComponent(<Leaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={user_id.split('_')[0]} />)
+        }
+        else if(code == 3) {
+            setComponent(<FLeaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={user_id.split('_')[0]} />)
+        }
+        else if(code == 4) {
+            setComponent(<PlayerList userList={userList} user_id={localStorage.getItem("intelli-quiz-userId")!} />)
+        }
+        
+    }, [code]);
 
     useEffect(()=>{
+
+        try {
+            if(!localStorage.getItem("intelli-quiz-userId")) {
+                const id = crypto.randomUUID();
+                localStorage.setItem("intelli-quiz-userId" , id);
+            }
+        }catch(err) {
+            const id = uuidv4();
+            localStorage.setItem("intelli-quiz-userId" , id);
+        }
         
         try {
-            user_id = localStorage.getItem("intelli-quiz-userId") + '_' + localStorage.getItem('username');
-            const client = new WebSocket('ws://localhost:8080');
+            const id = `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`;
+            setUserId(id);
+            const client = new WebSocket(`${process.env.NEXT_PUBLIC_websocket}`);
             socket.current = client;
             socket.current.addEventListener('open',(e)=>{
                 console.log("connection Established");
                 socket.current!.send(JSON.stringify({
                 code : 1,
                 data : {
-                    userId : `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`,
+                    userId : id,
                     room_id : room_id,
                     ques : {}
                 }
@@ -54,14 +87,14 @@ export default function RoomPage({params} : {
 
             socket.current.addEventListener('message',(e)=>{
                 const message = JSON.parse(e.data);
-                console.log(message);
+                // console.log(message);
 
                 if(message.code == 4) {
                     //list came render the list
                     console.log(message.data);
                     setUserList(message.data)
                     setCode(4);
-                    if (message.data && message.data[user_id] === "Host") {
+                    if (message.data && message.data[id] === "Host") {
                         setStartButton(true);
                     }
                 }
@@ -70,21 +103,22 @@ export default function RoomPage({params} : {
                     const ques = message.data;
                     setQuestion(ques)
                     setCode(1);
-                    setShowLeader(false);
                 }
                 else if(message.code == 2) {
                     //leaderboard
                     setLeaderBoardDataTime(message.data.leaderboardTime);
                     setLeaderBoardDataScore(message.data.leaderboardScore);
-                    setShowLeader(true);
-                    setCode(1);
+                    setCode(2);
                 }
-                else if(code == 3) {
+                else if(message.code == 3) {
                     //final leaderboard
                     setLeaderBoardDataTime(message.data.fleaderboardTime);
                     setLeaderBoardDataScore(message.data.fleaderboardScore);
-                    setCode(2);
-                    setShowLeader(false);
+                    setCode(3);
+                }
+                else if(message.code == 6) {
+                    //unAuth
+                    setCode(0);
                 }
 
             })
@@ -117,10 +151,12 @@ export default function RoomPage({params} : {
                     try {
                         socket.current?.send(JSON.stringify({
                             code : 3,
-                            userId : `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`
+                            data : {
+                                userId : user_id
+                            }
                         }));
                     }catch(error) {
-                        console.log(error);
+                        console.log("sending error " +  error + user_id);
                     }
                     router.push('/enter')
                 }}>Exit</button>
@@ -141,17 +177,29 @@ export default function RoomPage({params} : {
             </div>
         </div>
         <div className="h-screen relative">
-            {code == 4 ? (
-                <ul className="flex flex-col items-center bg-red-800 p-2 rounded h-full overflow-y-auto w-full">
-                    {Object.entries(userList).map(([user, role]) => (
-                        <li key={user}>{user} ({role})</li>
-                    ))}
-                </ul>
-            ) : code == 1 ? (<>
-                {showLeader && <Leaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={localStorage.getItem("intelli-quiz-userId")!} />}
-                {!showLeader && <MCQ props={question} ref={socket} key={question.question} room_id={room_id} />}
-            </>) : code == 2 ? <FLeaderboard scoreList={leaderboardDataScore} timeList={leaderboardDataTime} userId={localStorage.getItem("intelli-quiz-userId")!}/> : <LoadingUI/>}
+            {component}
         </div>
     </>
     
+}
+
+function PlayerList({userList , user_id} : {userList : object , user_id : string}) {
+    return <>
+    <div className="font-bold text-4xl text-center border-y-2 p-2">Waiting List</div>
+    <li  className="grid grid-cols-2 text-center text-2xl font-bold p-2 border-b-2">
+                <span> Candidate </span>
+                <span> Role </span>
+            </li>
+    <ul className="grid items-center p-2 rounded overflow-y-auto text-2xl">
+        {Object.entries(userList).map(([user, role]) => (
+            <li key={user} className={`rounded grid grid-cols-2 text-center ${
+                        user.split('_')[0] === user_id ? "bg-green-400" : "bg-white"
+                        }`}>
+                <span> {user.split('_')[1]} </span>
+                <span> {role} </span>
+            </li>
+        ))}
+    </ul>
+    </>
+
 }

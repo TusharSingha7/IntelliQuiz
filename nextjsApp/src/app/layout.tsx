@@ -1,7 +1,7 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import './globals.css';
-import Header from './components/header';
-import Footer from './components/footer';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 import Script from 'next/script';
 export default function RootLayout({
   children,
@@ -17,6 +17,8 @@ export default function RootLayout({
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js' strategy='beforeInteractive'></Script>
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js' strategy='beforeInteractive'></Script>
         <Script src='https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js' strategy='beforeInteractive'></Script>
+        <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js" strategy='beforeInteractive'></Script>
+
       </head>
       <body className="min-h-screen flex flex-col max-w-screen overflow-x-hidden">
         <Header/>

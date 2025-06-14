@@ -5,7 +5,6 @@ interface communication {
     code : number,
     data : any
 }
-
 const serverSocket = new WebSocketServer({port : 8080});
 
 const subscriber = createClient();
@@ -24,12 +23,28 @@ async function main() {
 }
 main()
 
+function pushList(list : {
+    [x: string] : string
+}) {
+     for(const id in list) {
+        const socket = socketMap.get(id);
+        if(socket && socket.OPEN) {
+            socket.send(JSON.stringify({
+                code : 4,
+                data : list
+            }))
+        }
+    }
+}
+
 async function subscribeHandler(res : communication) {
     //push the message to the socket of the userId
     //get the socket from the map and push to the user
     //it can be leaderboard or question
     //get the list of users from clinet connected to the room
-    subscriber.subscribe(res.data.room_id,async (message,channel)=>{
+    try {
+
+        subscriber.subscribe(res.data.room_id,async (message,channel)=>{
 
     const list = await client.hGetAll(`${channel}:clients`);
     const data = JSON.parse(message);
@@ -46,8 +61,6 @@ async function subscribeHandler(res : communication) {
                         data : org
                     }));
                     client.hSet(`${id}:quesTime`,JSON.stringify(org),JSON.stringify(new Date()));
-                    console.log(id);
-                    console.log(JSON.stringify(org));
                 }
             }
             //wait 5 sec
@@ -93,14 +106,27 @@ async function subscribeHandler(res : communication) {
         }
 
         flag = true;
+        const room_detail = await client.get(channel);
+        if(room_detail) {
+            const tdata = JSON.parse(room_detail); 
+            await client.set(`${channel}`,JSON.stringify({
+                userId : tdata.userId,
+                status : false
+            }));
+        }
 
-    });
+    })
+
+    }catch(err) {
+        console.log(err);
+    };
         
 }
 
 async function exitHandler(userId : string) {
 
-    const response = await client.get(userId);
+    try {
+        const response = await client.get(userId);
     if(response) {
         //delete the user entry 
         await client.del(userId);
@@ -130,7 +156,15 @@ async function exitHandler(userId : string) {
                 await client.del(id);
             }
         } 
+        else {
+            //push the updated list
+            const list = await client.hGetAll(`${response}:clients`);
+            pushList(list);
+        }
 
+    } 
+    }catch(err) {
+        console.log(err);
     }
 }
 
@@ -139,7 +173,8 @@ async function responseSubmitHandler(userId:string , ques : {
     options : string[],
     answer : string
 } , ans : string , room_id : string) {
-    const data = await client.hGet(`${userId}:quesTime`,JSON.stringify(ques));
+    try {
+        const data = await client.hGet(`${userId}:quesTime`,JSON.stringify(ques));
 
     await client.del(`${userId}:quesTime`)
     if(data){
@@ -164,13 +199,15 @@ async function responseSubmitHandler(userId:string , ques : {
         await client.zIncrBy(`${room_id}:finalLeaderboardScore`,newScore,userId)
         await client.zIncrBy(`${room_id}:finalLeaderboardTime`,timeInSeconds,userId)
     }
+
+    }catch(err) {
+        console.log(err)
+    }
+    
 }
 
 
 serverSocket.on('connection',async (clientSocket : WebSocket)=>{
-
-    //connection established
-    // console.log("client connected : " + clientSocket);
 
     clientSocket.onmessage = async (message)=>{
         const res : communication = JSON.parse(
@@ -179,16 +216,17 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
                 : message.data.toString()
         );
 
-        if(res.code == 1) {
+        try {
+            if(res.code == 1) {
             //check connection authenticity
-            //userId , roomId , verify this data from redis 
+            //userId , roomId , verify this data from redis
             const response = await client.get(res.data.userId);
             if(!response || response != res.data.room_id) {
                 clientSocket.send(JSON.stringify({
-                    code : 5,
-                    data : "unauthorized user in room or room doesnot exist"
+                code : 6,
+                message : "UnAuthorised"
                 }));
-                clientSocket.close();
+                return;
             }
             socketMap.set(res.data.userId , clientSocket);
             userMap.set(clientSocket , res.data.userId);
@@ -203,17 +241,7 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
             }
             const list = await client.hGetAll(`${res.data.room_id}:clients`);
             //push the list to everyone
-            if(flag) {
-                for(const id in list) {
-                    const socket = socketMap.get(id);
-                    if(socket && socket.OPEN) {
-                        socket.send(JSON.stringify({
-                            code : 4,
-                            data : list
-                        }))
-                    }
-                }
-            }
+            if(flag) pushList(list);
 
         }
         else if(res.code == 2) {
@@ -222,23 +250,33 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
         }
         else if(res.code == 3) {
             //user requesting to exit from room
-            exitHandler(res.data.userId)
+            await exitHandler(res.data.userId);
+            
+        }
+
+        }catch(err) {
+            console.log(err);
         }
         
     }
 
     clientSocket.onclose = async ()=>{
 
-        //remove the mappings and decrement the count 
-        const userId = userMap.get(clientSocket);
+        try {
+
+            const userId = userMap.get(clientSocket);
         userMap.delete(clientSocket);
         socketMap.delete(userId!);
-        //decrement the count 
+        //decrement the count
         const room_id = room_map.get(userId!);
         roomMemberCount.set(room_id! , roomMemberCount.get(room_id!)! - 1);
         if(roomMemberCount.get(room_id!) == 0) {
             subscriber.unsubscribe(room_id);
             subscribedChannels.delete(room_id!);
+        }
+
+        }catch(err) {
+            console.log(err);
         }
 
     }

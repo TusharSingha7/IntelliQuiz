@@ -1,13 +1,25 @@
 
 'use client'
-import {useState} from 'react'
-import CreateQuizPopup from '../components/createQuiz';
-import JoinQuizPopup from '../components/joinQuiz';
-import VantaBackground from '../components/birdsBack';
+import {useEffect, useState} from 'react'
+import CreateQuizPopup from '@/components/createQuiz';
+import JoinQuizPopup from '@/components/joinQuiz';
+import VantaBackground from '@/components/birdsBack';
+import {v4 as uuidv4} from 'uuid'
 
 export default function Enter() {
     const [showCreate , setCreate] = useState<boolean>(false);
     const [showJoin , setJoin] = useState<boolean>(false);
+    useEffect(()=>{
+        try {
+            if(!localStorage.getItem("intelli-quiz-userId")) {
+                const id = crypto.randomUUID();
+                localStorage.setItem("intelli-quiz-userId" , id);
+            }
+        }catch(err) {
+            const id = uuidv4();
+            localStorage.setItem("intelli-quiz-userId" , id);
+        }
+    },[])
     return <>
     <VantaBackground value='GLOBE'>
     {showCreate && <CreateQuizPopup func={setCreate}/>}

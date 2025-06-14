@@ -20,11 +20,10 @@ export default function JoinQuizPopup({func} : {
             <button className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
                 //perfomr server side logic here
                 localStorage.setItem('username' , username);
-                localStorage.setItem("intelli-quiz-userId" , "abcd");
                 if(username.length < 1) alert("invalid username");
                 else {
                     const response = await axios.post('/api/v2',{
-                        userId : localStorage.getItem("intelli-quiz-userId") || "efgh",
+                        userId : localStorage.getItem("intelli-quiz-userId"),
                         code : 2,
                         username : username,
                         topicDescription : "",
@@ -36,14 +35,14 @@ export default function JoinQuizPopup({func} : {
                     }
                     else alert("please try again later")
                 }
-                
+
             }}>Join Quiz</button>
         </div>
     </div>
     <div onClick={()=>{
         func(false);
     }} className="z-10 opacity-50 h-full w-full fixed bg-gray-400 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        
+
     </div>
     </> 
     
