@@ -29,7 +29,7 @@ if(code == 1) {
     if(!response) {
         console.log(topicDescription)
         //gemini API call here for retrieving questions here 
-        let prompt = `
+        const prompt = `
             You are a quiz generator bot. Return exactly ${questionsCount} MCQ questions based on the topic:
             "${topicDescription}"
 

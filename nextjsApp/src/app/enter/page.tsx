@@ -21,7 +21,7 @@ export default function Enter() {
                 const id = crypto.randomUUID();
                 localStorage.setItem("intelli-quiz-userId" , id);
             }
-        }catch(err) {
+        }catch {
             const id = uuidv4();
             localStorage.setItem("intelli-quiz-userId" , id);
         }
@@ -43,7 +43,7 @@ export default function Enter() {
         
         }
 
-    },[]);
+    });
 
     if(loading) return <LoadingCompo/>;
 

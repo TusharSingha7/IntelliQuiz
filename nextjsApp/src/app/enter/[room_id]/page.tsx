@@ -54,7 +54,7 @@ export default function RoomPage({params} : {
             setComponent(<PlayerList userList={userList} user_id={localStorage.getItem("intelli-quiz-userId")!} />)
         }
         
-    }, [code]);
+    }, [code, question, leaderboardDataScore, leaderboardDataTime, room_id, userList, user_id]);
 
     useEffect(()=>{
 
@@ -63,7 +63,7 @@ export default function RoomPage({params} : {
                 const id = crypto.randomUUID();
                 localStorage.setItem("intelli-quiz-userId" , id);
             }
-        }catch(err) {
+        }catch {
             const id = uuidv4();
             localStorage.setItem("intelli-quiz-userId" , id);
         }
@@ -73,7 +73,7 @@ export default function RoomPage({params} : {
             setUserId(id);
             const client = new WebSocket(`${websocket}:8080`);
             socket.current = client;
-            socket.current.addEventListener('open',(e)=>{
+            socket.current.addEventListener('open',()=>{
                 console.log("connection Established");
                 socket.current!.send(JSON.stringify({
                 code : 1,
@@ -124,7 +124,7 @@ export default function RoomPage({params} : {
 
             })
 
-            socket.current.addEventListener('close',(e)=>{
+            socket.current.addEventListener('close',()=>{
                 console.log("connection closed");
             })
 
@@ -139,7 +139,7 @@ export default function RoomPage({params} : {
         return ()=>{
             socket.current?.close()
         }
-    },[])
+    }, [room_id, websocket])
 
         return <>
         <div className="flex">

@@ -1,15 +1,16 @@
 'use client'
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
-    VANTA?: any;
+    VANTA?: { [key: string]: (options: object) => { destroy: () => void } };
   }
 }
 
 export default function VantaBackground({ children , value = "RINGS" }: { children?: React.ReactNode; value? : string}) {
   const vantaRef = useRef<HTMLDivElement>(null);
-  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  type VantaEffectInstance = { destroy: () => void } | null;
+  const [vantaEffect, setVantaEffect] = useState<VantaEffectInstance>(null);
   const [mounted, setMounted] = useState(false);
   const [vantaAvailable,setVantaAvailable] = useState<boolean | null>(null);
 
@@ -42,7 +43,7 @@ export default function VantaBackground({ children , value = "RINGS" }: { childr
       clearTimeout(timeout);
     };
     // Only run when mounted or vantaEffect changes
-  }, [mounted]);
+  }, [mounted,value,vantaEffect]);
 
   if (!mounted) {
     // Render nothing on the server to avoid hydration mismatch
@@ -57,7 +58,7 @@ export default function VantaBackground({ children , value = "RINGS" }: { childr
     </div>
   );
 
-  return <FallbackCompo children={children}/>
+  return <FallbackCompo>{children}</FallbackCompo>
  
 }
 
