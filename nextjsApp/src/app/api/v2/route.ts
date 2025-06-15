@@ -2,15 +2,21 @@ import { NextRequest , NextResponse } from "next/server";
 import { createClient } from "redis";
 import { GoogleGenAI } from "@google/genai";
 
+const redisPassword = process.env.NEXT_PUBLIC_PASSWORD;
+
 export async function POST(req : NextRequest) {
 
 let client;
 const googleapi = process.env.NEXT_PUBLIC_GOOGLEAPI;
 
 try {
-client = createClient();
-client.on('error', (err) => {
-    console.error('Redis Client Error:', err);
+client = createClient({
+    username: 'default',
+    password: redisPassword,
+    socket: {
+        host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 17753
+    }
 });
 
 await client.connect();
@@ -55,7 +61,7 @@ if(code == 1) {
 
         if(api_res &&  api_res.text) {
             let rawList = api_res.text!.trim();
-            if(rawList === "__INVALID_TOPIC__") throw new Error(rawList)
+            if(rawList === "__INVALID_TOPIC__") throw new Error(rawList);
             if (rawList.startsWith('```')) {
                 rawList = rawList.replace(/```[a-z]*\n?/gi, '').replace(/```$/, '').trim();
             }
@@ -289,9 +295,13 @@ export async function GET(req : NextRequest) {
 let client;
 
 try {
-client = createClient();
-client.on('error', (err) => {
-  console.error('Redis Client Error:', err);
+client = createClient({
+    username: 'default',
+    password: redisPassword,
+    socket: {
+        host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 17753
+    }
 });
 await client.connect();
 const { searchParams } = new URL(req.url);
@@ -314,7 +324,6 @@ return new NextResponse(JSON.stringify({
 })
 
 }catch(error) {
-   console.log(error);
     return new NextResponse(JSON.stringify({
       code: 10,
       message: error instanceof Error ? error.message : String(error),

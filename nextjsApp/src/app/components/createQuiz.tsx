@@ -33,6 +33,7 @@ export default function CreateQuizPopup({func , loader} : {
                         room_id : null,
                         questionsCount : count
                     });
+                    console.log("done with response")
                     if(response && response.data.code) {
                         const room_id = response.data.roomId;
                         router.push(`/enter/${room_id}`);

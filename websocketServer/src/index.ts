@@ -1,14 +1,30 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import {createClient} from 'redis'
+import 'dotenv/config'
 
 interface communication {
     code : number,
     data : any
 }
+const redisPassword = process.env.PASSWORD;
 const serverSocket = new WebSocketServer({port : 8080});
 
-const subscriber = createClient();
-const client = createClient();
+const subscriber = createClient({
+    username: 'default',
+    password: redisPassword,
+    socket: {
+        host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 17753
+    }
+});
+const client = createClient({
+    username: 'default',
+    password: redisPassword,
+    socket: {
+        host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 17753
+    }
+});
 const socketMap = new Map<string,WebSocket>();
 const userMap = new Map<WebSocket,string>();
 const subscribedChannels = new Set<string>();
@@ -18,8 +34,15 @@ const room_map = new Map<string,string>();
 let flag = true;
 
 async function main() {
+    try {
+
     if (!client.isOpen) await client.connect();
     if (!subscriber.isOpen) await subscriber.connect();
+
+    }catch(err){
+        console.log(err);
+    }
+    
 }
 main()
 
@@ -280,4 +303,17 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
         }
 
     }
+});
+
+serverSocket.on('error',(Error)=>{
+
+    serverSocket.clients.forEach((cli)=>{
+        if(cli.readyState === cli.OPEN) {
+            cli.send(JSON.stringify({
+                code:6,
+                message : "Error occured in server"
+            }))
+        }
+    })
+    
 })
