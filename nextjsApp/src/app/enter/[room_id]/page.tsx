@@ -71,7 +71,7 @@ export default function RoomPage({params} : {
         try {
             const id = `${localStorage.getItem("intelli-quiz-userId")}_${localStorage.getItem('username')}`;
             setUserId(id);
-            const client = new WebSocket(`${websocket}:8080`);
+            const client = new WebSocket(`${websocket}`);
             socket.current = client;
             socket.current.addEventListener('open',()=>{
                 console.log("connection Established");
