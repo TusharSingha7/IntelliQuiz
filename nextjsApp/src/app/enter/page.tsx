@@ -25,8 +25,9 @@ export default function Enter() {
             const id = uuidv4();
             localStorage.setItem("intelli-quiz-userId" , id);
         }
+        try {
 
-        if(localStorage.getItem("intelli-quiz-userId") && localStorage.getItem('username')) {
+            if(localStorage.getItem("intelli-quiz-userId") && localStorage.getItem('username')) {
 
             const id = localStorage.getItem("intelli-quiz-userId") + '_' + localStorage.getItem('username')
             const response = axios.get(`/api/v2/?userId=${id}`);
@@ -44,7 +45,12 @@ export default function Enter() {
         }
         else setChecking(false);
 
-    });
+        }catch{
+            console.log("error in get api")
+        }
+        
+
+    },[router]);
 
     if(loading) return <LoadingCompo/>;
 
