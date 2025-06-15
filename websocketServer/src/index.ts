@@ -1,13 +1,15 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import {createClient} from 'redis'
+import {createServer} from 'http'
 import 'dotenv/config'
 
 interface communication {
     code : number,
     data : any
 }
+const server = createServer();
 const redisPassword = process.env.PASSWORD;
-const serverSocket = new WebSocketServer({port : 8080});
+const serverSocket = new WebSocketServer({server});
 
 const subscriber = createClient({
     username: 'default',
@@ -316,4 +318,6 @@ serverSocket.on('error',(Error)=>{
         }
     })
     
-})
+});
+
+server.listen(8080);
