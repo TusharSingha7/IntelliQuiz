@@ -42,6 +42,7 @@ export default function Enter() {
             });
         
         }
+        else setChecking(false);
 
     });
 
