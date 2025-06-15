@@ -307,7 +307,7 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
     }
 });
 
-serverSocket.on('error',(Error)=>{
+serverSocket.on('error',()=>{
 
     serverSocket.clients.forEach((cli)=>{
         if(cli.readyState === cli.OPEN) {
@@ -320,4 +320,7 @@ serverSocket.on('error',(Error)=>{
     
 });
 
-server.listen(8080);
+const PORT = process.env.PORT;
+server.listen(PORT,()=>{
+    console.log("listening on port " + PORT);
+});
