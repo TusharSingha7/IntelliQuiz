@@ -32,7 +32,7 @@ export default function FLeaderboard({timeList , scoreList , userId } : {
                     <li
                         key={ele.value}
                         className={`grid grid-cols-4 text-2xl w-full justify-start rounded ${
-                        userId === user_id ? "bg-green-400/50 " : "bg-white"
+                        userId === user_id ? "bg-green-400/50 " : ""
                         }`}
                     >
                         <span className="text-center font-bold">{index + 1}</span>
