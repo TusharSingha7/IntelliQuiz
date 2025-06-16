@@ -92,7 +92,7 @@ export default function RoomPage({params} : {
 
                 if(message.code == 4) {
                     //list came render the list
-                    console.log(message.data);
+                    // console.log(message.data);
                     setUserList(message.data)
                     setCode(4);
                     if (message.data && message.data[id] === "Host") {
