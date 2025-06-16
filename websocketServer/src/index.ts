@@ -320,7 +320,7 @@ serverSocket.on('error',()=>{
     
 });
 
-const PORT = process.env.PORT || 8080;
-server.listen(PORT,()=>{
+const PORT = Number(process.env.PORT) || 8080;
+server.listen(PORT,'0.0.0.0',()=>{
     console.log("listening on port " + PORT);
 });
