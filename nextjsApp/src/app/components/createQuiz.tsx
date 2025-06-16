@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction , useState} from "react";
+import {Button } from '@/src/components/ui/button'
 
 export default function CreateQuizPopup({func , loader} : {
     func : Dispatch<SetStateAction<boolean>>,
@@ -18,8 +19,8 @@ export default function CreateQuizPopup({func , loader} : {
             <input placeholder="Username" defaultValue={localStorage.getItem('username') || ""} onChange={(e)=>{setUsername(e.target.value)}} required={true} className="border w-56 border-black rounded font-bold p-2 my-2"></input>
             <input placeholder="Topic Description" onChange={(e)=>{setTopicName(e.target.value)}} required={true} className="border rounded w-56 border-black my-2 font-bold p-2"></input>
             <input placeholder="No of questions" onChange={(e)=>{setCount(Number(e.target.value))}} type="Number"defaultValue={10} className="border rounded w-56 border-black my-2 font-bold p-2"></input>
-            <button className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
-                //fetch room id from backend and join this player 
+            <Button variant={"ghost"} className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
+                //fetch room id from backend and join this player
                 //call for room creation here
                 loader(true);
                 localStorage.setItem('username' , username);
@@ -41,7 +42,7 @@ export default function CreateQuizPopup({func , loader} : {
                     else alert("please try again later")
                 }
                 
-            }}>Create Quiz</button>
+            }}>Create Quiz</Button>
         </div>
     </div>
     <div onClick={()=>{

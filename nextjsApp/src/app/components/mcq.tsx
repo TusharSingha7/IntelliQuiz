@@ -2,6 +2,7 @@
 import { useEffect, useState , useRef } from "react"
 import { mcq_type } from "../lib"
 import ProgressBar from "./progressbar"
+import { Button } from "@/src/components/ui/button";
 
 export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : React.RefObject<WebSocket | null> ,room_id : string}){
 
@@ -30,18 +31,19 @@ export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : R
     }
     return (<>
         <div className="min-h-full pb-10">
-            <div className="w-[70%] h-[70%] flex flex-col items-center rounded-lg shadow-xl border mx-auto">
+            <div className="w-[70%] min-h-[70%] flex flex-col items-center rounded-lg shadow-xl border mx-auto">
                 <div className="text-4xl font-bold border p-2 rounded text-center">
                     <div>{props.question}</div><br/>
                     <ProgressBar resetkey={props.question} key={props.question} />
                 </div>
                 <div className="flex flex-col w-full ">
                     {props.options.map((value , index)=>{
-                        return <button key={index} className={`text-left text-3xl border m-2 p-2 rounded ${option == index ? "bg-[#640df2]" : "bg-white"}`} onClick={()=>{
+                        return <Button variant={"ghost"} key={index} className={`text-left text-3xl border m-2 p-5 rounded ${option == index ? "bg-[#640df2] text-white" : "bg-white"} whitespace-normal break-words`} 
+                        onClick={()=>{
                             setOption(index);
                             setAnswered(true);
                             onClickHandler(index);
-                        }} disabled = {answered} > {value}</button>
+                        }} disabled = {answered} > {value}</Button>
                     })}
                 </div>
             </div>

@@ -7,6 +7,7 @@ interface communication {
     code : number,
     data : any
 }
+
 const server = createServer();
 const redisPassword = process.env.PASSWORD;
 const serverSocket = new WebSocketServer({server});
@@ -34,6 +35,26 @@ const roomMemberCount = new Map<string,number>();
 const room_map = new Map<string,string>();
 
 let flag = true;
+
+subscriber.on('error', (err) => {
+  console.error("Redis Subscriber Error:", err);
+});
+
+client.on('error', (err) => {
+  console.error("Redis Client Error:", err);
+});
+
+subscriber.on('end', () => {
+    console.warn("Redis subscriber disconnected. Attempting to reconnect...");
+    subscriber.connect().catch(console.error);
+});
+
+client.on('end', () => {
+    console.warn("Redis client disconnected. Attempting to reconnect...");
+    client.connect().catch(console.error);
+});
+
+
 
 async function main() {
     try {

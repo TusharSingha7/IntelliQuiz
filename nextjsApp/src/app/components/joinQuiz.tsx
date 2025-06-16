@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from "react";
 import {useState} from 'react'
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import {Button} from '@/src/components/ui/button'
 
 export default function JoinQuizPopup({func} : {
     func : Dispatch<SetStateAction<boolean>>
@@ -17,7 +18,7 @@ export default function JoinQuizPopup({func} : {
         <div className="flex flex-col items-center">
             <input placeholder="Username" defaultValue={localStorage.getItem('username') || ""} required={true} className="border w-56 border-black rounded font-bold p-2 my-2" onChange={(e)=>{setUsername(e.target.value)}}></input>
             <input placeholder="Room Id" required={true} className="border w-56 border-black rounded font-bold p-2 my-2" onChange={(e)=>{setRoomid(e.target.value)}}></input>
-            <button className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
+            <Button variant={'ghost'} className="border w-56 border-black font-bold h-10 my-2 rounded" onClick={async ()=>{
                 //perfomr server side logic here
                 localStorage.setItem('username' , username);
                 if(username.length < 1) alert("invalid username");
@@ -36,7 +37,7 @@ export default function JoinQuizPopup({func} : {
                     else alert("please try again later")
                 }
 
-            }}>Join Quiz</button>
+            }}>Join Quiz</Button>
         </div>
     </div>
     <div onClick={()=>{
