@@ -38,7 +38,7 @@ export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : R
                 </div>
                 <div className="flex flex-col w-full ">
                     {props.options.map((value , index)=>{
-                        return <Button variant={"ghost"} key={index} className={`text-left text-3xl border m-2 p-5 rounded ${option == index ? "bg-[#640df2] text-white" : "bg-white"} whitespace-normal break-words`} 
+                        return <Button variant={"ghost"} key={index} className={`text-left text-3xl border m-2 p-5 h-auto rounded ${option == index ? "bg-[#640df2] text-white" : "bg-white"} whitespace-normal break-words`} 
                         onClick={()=>{
                             setOption(index);
                             setAnswered(true);
