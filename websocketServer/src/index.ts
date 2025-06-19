@@ -111,7 +111,7 @@ async function subscribeHandler(res : communication) {
             }
             //wait 5 sec
             await new Promise((res)=>{
-                setTimeout(res,10000);
+                setTimeout(res,8000);
             })
             //push leaderboard and wait for 2 sec 
             const leaderboardTime = await client.zRangeWithScores(`${res.data.room_id}:leaderboardTime`, 0, -1,{REV:true});
@@ -130,7 +130,7 @@ async function subscribeHandler(res : communication) {
                 }
             }
             await new Promise((res)=>{
-                setTimeout(res,8000);
+                setTimeout(res,4000);
             });
 
             //reset the leaderboard now 

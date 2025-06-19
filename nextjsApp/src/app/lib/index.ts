@@ -14,6 +14,7 @@ export interface communication {
         questionsCount? : number,
         username? : string,
         ques? : mcq_type,
-        ans? : string
+        ans? : string,
+        formData? : FormData
     }
 }

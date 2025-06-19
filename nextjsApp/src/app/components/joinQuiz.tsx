@@ -35,12 +35,12 @@ export default function JoinQuizPopup({func , loader} : {
                     try {
 
                         const response = await axios.post('/api/v2',{
-                        userId : localStorage.getItem("intelli-quiz-userId"),
-                        code : 2,
-                        username : username,
-                        topicDescription : "",
-                        room_id : roomid,
-                        questionsCount : 0
+                            userId : localStorage.getItem("intelli-quiz-userId"),
+                            code : 2,
+                            username : username,
+                            topicDescription : "",
+                            room_id : roomid,
+                            questionsCount : 0
                         });
                         if(response && response.data.code) {
                             router.push(`/enter/${roomid}`)
@@ -54,7 +54,6 @@ export default function JoinQuizPopup({func , loader} : {
                         alert("please try again later");
                         loader(false);
                     }
-                    
                 }
 
             }}>Join Quiz</Button>

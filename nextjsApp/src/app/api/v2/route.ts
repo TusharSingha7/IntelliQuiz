@@ -143,6 +143,8 @@ else if(code == 2) {
         const data_str = await client.get(`${room_id}`);
         if(data_str) {
             const data = JSON.parse(data_str);
+            console.log(data);
+            console.log(typeof data.count);
             if(data.status == false && data.count < 10) {
                 //join him in the room
                 //update list of clients
@@ -165,7 +167,7 @@ else if(code == 2) {
                 }));
                 return new NextResponse(JSON.stringify({
                     code : 1,
-                    room_id : room_id,
+                    roomId : room_id,
                     message : "Room Joined"
                 }) , {
                     status : 200
@@ -175,7 +177,7 @@ else if(code == 2) {
                 //maximum strength reached
                 return new NextResponse(JSON.stringify({
                     code : 3,
-                    room_id : room_id,
+                    roomId : room_id,
                     message : "Room Strength maximised"
                 }), {
                     status : 500
@@ -186,7 +188,7 @@ else if(code == 2) {
                 //room started cannot join the room 
                  return new NextResponse(JSON.stringify({
                     code : 3,
-                    room_id : room_id,
+                    roomId : room_id,
                     message : "Room Started Cannot Join"
                 }), {
                     status : 500
@@ -195,7 +197,7 @@ else if(code == 2) {
         }
          return new NextResponse(JSON.stringify({
             code : 0,
-            room_id : null,
+            roomId : null,
             message : "Room doesnot exist"
         }) , {
             status : 500
@@ -220,7 +222,7 @@ else if(code == 3) {
         await client.publish(room_id,data);
         return new NextResponse(JSON.stringify({
             code : 1,
-            room_id : room_id,
+            roomId : room_id,
             message : "Room started"
 
         }), {
@@ -230,7 +232,7 @@ else if(code == 3) {
     else {
         return new NextResponse(JSON.stringify({
             code : 1,
-            room_id : room_id,
+            roomId : room_id,
             message : "cannot start the room"
     }),{
         status : 500
@@ -267,7 +269,7 @@ else if(code == 4) {
             await client.del(`${response}`);
         } 
         return new NextResponse(JSON.stringify({
-            room_id : response,
+            roomId : response,
             code : 1,
             message : "user exited from the room"
         }),{
@@ -275,7 +277,7 @@ else if(code == 4) {
         });
     }
     return new NextResponse(JSON.stringify({
-        room_id : null,
+        roomId : null,
         code : 0,
         message : "user is not in any room"
     }),{
@@ -287,7 +289,7 @@ else if(code == 4) {
 return new NextResponse(JSON.stringify({
     code : 0,
     message : "Invalid code",
-    room_id : null
+    roomId : null
 }),{
     status : 500
 })
@@ -296,7 +298,7 @@ catch(error) {
     return new NextResponse(JSON.stringify({
       code: 10,
       errorMessage: error instanceof Error ? error.message : String(error),
-      room_id: null
+      roomId: null
     }), {
       status: 500
     });
@@ -345,7 +347,7 @@ return new NextResponse(JSON.stringify({
     return new NextResponse(JSON.stringify({
       code: 10,
       message: error instanceof Error ? error.message : String(error),
-      room_id: null
+      roomId: null
     }), {
       status: 500
     });
