@@ -8,9 +8,11 @@ import {v4 as uuidv4} from 'uuid'
 import LoadingUI from '@/components/loading';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import SubmitFile from '../components/submitFile';
 
 export default function Enter() {
     const [showCreate , setCreate] = useState<boolean>(false);
+    const [showFile , setFile] = useState<boolean>(false);
     const [showJoin , setJoin] = useState<boolean>(false);
     const [loading,setLoading] = useState<boolean>(false);
     const [checking , setChecking] = useState<boolean>(true);
@@ -61,7 +63,9 @@ export default function Enter() {
     {showCreate && <CreateQuizPopup func={setCreate} loader={setLoading} />}
     <div className="grid grid-cols-2 h-screen text-white">
         <div className="flex flex-col gap-4 min-h-screen justify-center">
-                <button className="border w-56 mx-auto p-4 font-bold border">AI Generated Quiz</button>
+                <button className="border w-56 mx-auto p-4 font-bold border" onClick={()=>{
+                    setFile(true);
+                }} >AI Generated Quiz</button>
                 <button className="border w-56 mx-auto p-4 font-bold border" onClick={()=>{
                     setCreate(true);
                 }}>Create AI Generated Multiplayer Quiz</button>
@@ -73,7 +77,8 @@ export default function Enter() {
             
         </div>
     </div>
-    {showJoin && <JoinQuizPopup func={setJoin}/>}
+    {showJoin && <JoinQuizPopup func={setJoin} loader={setLoading} />}
+    {showFile && <SubmitFile func={setFile} loader={setLoading} />}
     </VantaBackground>
     </>
 }

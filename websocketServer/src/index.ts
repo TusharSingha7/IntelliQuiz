@@ -111,7 +111,7 @@ async function subscribeHandler(res : communication) {
             }
             //wait 5 sec
             await new Promise((res)=>{
-                setTimeout(res,8000);
+                setTimeout(res,10000);
             })
             //push leaderboard and wait for 2 sec 
             const leaderboardTime = await client.zRangeWithScores(`${res.data.room_id}:leaderboardTime`, 0, -1,{REV:true});
@@ -130,8 +130,15 @@ async function subscribeHandler(res : communication) {
                 }
             }
             await new Promise((res)=>{
-                setTimeout(res,4000);
-            })
+                setTimeout(res,8000);
+            });
+
+            //reset the leaderboard now 
+            const leaderboardTimeList = await client.zRange(`${res.data.room_id}:leaderboardTime`, 0, -1);
+            const leaderboardScoreList = await client.zRange(`${res.data.room_id}:leaderboardScore`, 0, -1);
+            await client.zAdd(`${res.data.room_id}:leaderboardScore`, leaderboardScoreList.map((member)=>({value : member , score : 0})));
+            await client.zAdd(`${res.data.room_id}:leaderboardTime`, leaderboardTimeList.map((member)=>({value : member , score : 0})));
+
         }
         //push the final leaderboard
         const fleaderboardTime = await client.zRangeWithScores(`${res.data.room_id}:finalLeaderboardTime`,0,-1,{REV:true});
@@ -203,6 +210,14 @@ async function exitHandler(userId : string) {
             }
         } 
         else {
+            //decrease the count
+            const room_detail = await client.get(`${response}`);
+            const data = JSON.parse(room_detail!);
+            await client.set(response,JSON.stringify({
+                status : data.status,
+                userId : data.userId,
+                count : data.count - 1
+            }));
             //push the updated list
             const list = await client.hGetAll(`${response}:clients`);
             pushList(list);

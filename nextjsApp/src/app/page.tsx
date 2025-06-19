@@ -1,7 +1,9 @@
 'use client'
+import { useRouter } from 'next/navigation';
 import VantaBackground from './components/birdsBack';
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
     <VantaBackground value='NET'>
@@ -16,7 +18,9 @@ export default function Home() {
             multiplayer online modes, designed to make studying 
             smarter and more engaging for students.
           </p>
-          <button className='h-10 w-32 bg-blue-600 rounded mt-32 ml-2'>Get Started</button>
+          <button className='h-10 w-32 bg-blue-600 rounded mt-32 ml-2' onClick={()=>{
+            router.push('/enter');
+          }}>Get Started</button>
         </div>
         <div className=" min-h-full pt-20">
         </div>

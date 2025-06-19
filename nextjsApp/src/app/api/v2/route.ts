@@ -30,7 +30,7 @@ if(code == 1) {
         console.log(topicDescription)
         //gemini API call here for retrieving questions here 
         const prompt = `
-            You are a quiz generator bot. Return exactly ${questionsCount} MCQ questions based on the topic:
+            You are a quiz generator bot. Return exactly ${Math.max(5 , Math.min(30 , questionsCount))} MCQ questions based on the topic:
             "${topicDescription}"
 
             Rules:
@@ -38,6 +38,7 @@ if(code == 1) {
             - Do NOT attempt to generate questions for invalid, unclear, or unrecognized topics.
 
             If the topic is valid:
+            - Options of each question should be very close and confusing to answer.
             - Each question must be in the following strict JSON format with four options each, and all questions must be enclosed in a single JSON array:
             [
             {
@@ -83,7 +84,8 @@ if(code == 1) {
         
         const data = {
             status : false,
-            userId : `${userId}_${username}`
+            userId : `${userId}_${username}`,
+            count : 1
         }
 
         await client.set(roomId,JSON.stringify(data));
@@ -141,7 +143,7 @@ else if(code == 2) {
         const data_str = await client.get(`${room_id}`);
         if(data_str) {
             const data = JSON.parse(data_str);
-            if(data.status == false) {
+            if(data.status == false && data.count < 10) {
                 //join him in the room
                 //update list of clients
                 await client.hSet(`${room_id}:clients`,`${userId}_${username}`,"Participant");
@@ -156,6 +158,11 @@ else if(code == 2) {
                 await client.zAdd(`${room_id}:finalLeaderboardScore` , [leaderboardData])
                 await client.zAdd(`${room_id}:leaderboardTime` , [leaderboardData])
                 await client.zAdd(`${room_id}:finalLeaderboardTime` , [leaderboardData])
+                await client.set(room_id,JSON.stringify({
+                    status : false,
+                    userId : data.userId,
+                    count : data.count + 1
+                }));
                 return new NextResponse(JSON.stringify({
                     code : 1,
                     room_id : room_id,
@@ -163,6 +170,17 @@ else if(code == 2) {
                 }) , {
                     status : 200
                 });
+            }
+            else if(data.status == false) {
+                //maximum strength reached
+                return new NextResponse(JSON.stringify({
+                    code : 3,
+                    room_id : room_id,
+                    message : "Room Strength maximised"
+                }), {
+                    status : 500
+                });
+
             }
             else {
                 //room started cannot join the room 
@@ -191,7 +209,7 @@ else if(code == 3) {
     //start quiz call
     const data = await client.get(`${room_id}:list`);
     const room_data = await client.get(`${room_id}`);
-    const data_room = JSON.parse(room_data!);
+    const data_room = JSON.parse(room_data || "");
     console.log(data_room);
     console.log(`${userId}_${username}`)
     if(data && data_room.status == false && data_room.userId == `${userId}_${username}`) {
