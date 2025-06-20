@@ -12,14 +12,15 @@ let client;
 const googleapi = process.env.NEXT_PUBLIC_GOOGLEAPI;
 
 try {
-client = createClient({
-    username: 'default',
-    password: redisPassword,
-    socket: {
-        host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
-        port: 17753
-    }
-});
+
+    client = createClient({
+        username: 'default',
+        password: redisPassword,
+        socket: {
+            host: 'redis-17753.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
+            port: 17753
+        }
+    });
 
 await client.connect();
     console.log("in")
