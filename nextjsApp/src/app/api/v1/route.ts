@@ -23,9 +23,7 @@ try {
     });
 
 await client.connect();
-    console.log("in")
     const res = await req.formData();
-    console.log(res);
     const file = res.get("file") as File;
     const text = res.get("text");
     const username = res.get('username');

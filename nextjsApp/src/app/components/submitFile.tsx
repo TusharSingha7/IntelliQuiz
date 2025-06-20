@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {Input} from '@/src/components/ui/input'
 import {Label} from '@/src/components/ui/label'
 import { Button } from "@/src/components/ui/button";
@@ -13,6 +13,8 @@ export default function SubmitFile({func , loader} : {
     loader : Dispatch<SetStateAction<boolean>>
 }) {
     const [username,setUsername] = useState<string>("");
+    const [isFileValid , setIsFileValid] = useState<boolean>(true);
+    const [fileError , setFileError] = useState<string>("");
     const router = useRouter();
     const submitHandler = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -56,6 +58,10 @@ export default function SubmitFile({func , loader} : {
         
     }
 
+    useEffect(()=>{
+        setUsername(localStorage.getItem('username') || "");
+    },[])
+
     return <>
     <div className="z-20 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-8 bg-white rounded shadow shadow-lg h-[70%] w-[50%] flex items-center justify-center">
         <div className="flex flex-col">
@@ -64,11 +70,35 @@ export default function SubmitFile({func , loader} : {
                     <Label htmlFor="username" className="py-2">Username</Label>
                     <Input id="username" placeholder="Engineer" defaultValue={localStorage.getItem('username') || ""} required={true} className="border w-72 rounded shadow font-bold p-2 my-2" onChange={(e)=>{setUsername(e.target.value)}}></Input>
                     <Label htmlFor="File" className="py-2">File</Label>
-                    <Input id="file" type="file" accept=".pdf , .docx" name="file" required={true}/>
+                    <Input id="file" type="file" accept=".pdf , .docx" name="file" required={true} onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            const allowedTypes = [
+                            "application/pdf",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            ];
+
+                            const sizeInMB = file.size / (1024 * 1024);
+                            const isValidType = allowedTypes.includes(file.type);
+
+                            if (!isValidType) {
+                            setFileError("Only .pdf and .docx files are allowed");
+                            setIsFileValid(false);
+                            } else if (sizeInMB > 1) {
+                            setFileError("File size exceeds 1MB limit");
+                            setIsFileValid(false);
+                            } else {
+                            setFileError("");
+                            setIsFileValid(true);
+                            }
+                        }
+                        }}
+                    />
+                    {!isFileValid && (<div className="text-red-400">{fileError}</div>)}
                     <Label htmlFor="textarea" className="py-2 mt-2">Note</Label>
                     <Textarea id="textarea" name="textarea" className="mb-4" placeholder="Additional Instructions"/>
                 </div>
-            <Button variant={"ghost"} type="submit" name="button" className="border w-72 shadow bg-black text-white font-bold h-10 rounded">Generate</Button>
+            <Button variant={"ghost"} disabled={!isFileValid} type="submit" name="button" className="border w-72 shadow bg-black text-white font-bold h-10 rounded">Generate</Button>
         </form>
         </div>
     </div>

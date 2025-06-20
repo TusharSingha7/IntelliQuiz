@@ -79,7 +79,9 @@ main()
 function pushList(list : {
     [x: string] : string
 }) {
+    // console.log(list);
      for(const id in list) {
+        // console.log(id);
         const socket = socketMap.get(id);
         if(socket && socket.OPEN) {
             socket.send(JSON.stringify({
@@ -219,6 +221,15 @@ async function exitHandler(userId : string) {
             await client.del(`${response}`);
             //delete entries for all clinets also 
             for(const id in clinetsList) {
+                const socket = socketMap.get(id);
+                if(socket && socket.OPEN) {
+                    socket.send(JSON.stringify({
+                        code : 7,
+                        data : {
+
+                        }
+                    }))
+                }
                 await client.del(id);
             }
         } 

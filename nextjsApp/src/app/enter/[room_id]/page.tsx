@@ -121,6 +121,9 @@ export default function RoomPage({params} : {
                     //unAuth
                     setCode(0);
                 }
+                else if(message.code == 7) {
+                    router.push('/enter');
+                }
 
             })
 
