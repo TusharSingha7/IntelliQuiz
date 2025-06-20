@@ -142,7 +142,7 @@ export default function RoomPage({params} : {
         return ()=>{
             socket.current?.close()
         }
-    }, [room_id, websocket])
+    }, [room_id, websocket, router])
 
         return <>
         <div className="flex">
