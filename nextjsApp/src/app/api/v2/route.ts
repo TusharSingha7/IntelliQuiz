@@ -217,7 +217,8 @@ else if(code == 3) {
     if(data && data_room.status == false && data_room.userId == `${userId}_${username}`) {
         await client.set(`${room_id}`,JSON.stringify({
             status : true,
-            userId : `${userId}_${username}`
+            userId : `${userId}_${username}`,
+            count : data_room.count
         }));
         await client.publish(room_id,data);
         return new NextResponse(JSON.stringify({

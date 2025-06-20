@@ -53,7 +53,14 @@ client.on('end', () => {
     console.warn("Redis client disconnected. Attempting to reconnect...");
     client.connect().catch(console.error);
 });
-
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+  process.exit(1);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
 
 
 async function main() {
@@ -94,7 +101,7 @@ async function subscribeHandler(res : communication) {
 
     const list = await client.hGetAll(`${channel}:clients`);
     const data = JSON.parse(message);
-
+        let check = false;
         flag = false;
         for(const ques in data) {
             const org = data[ques];
@@ -136,6 +143,10 @@ async function subscribeHandler(res : communication) {
             //reset the leaderboard now 
             const leaderboardTimeList = await client.zRange(`${res.data.room_id}:leaderboardTime`, 0, -1);
             const leaderboardScoreList = await client.zRange(`${res.data.room_id}:leaderboardScore`, 0, -1);
+            if(leaderboardScoreList.length == 0 || leaderboardTimeList.length == 0) {
+                check = true;
+                break;
+            }
             await client.zAdd(`${res.data.room_id}:leaderboardScore`, leaderboardScoreList.map((member)=>({value : member , score : 0})));
             await client.zAdd(`${res.data.room_id}:leaderboardTime`, leaderboardTimeList.map((member)=>({value : member , score : 0})));
 
@@ -145,6 +156,7 @@ async function subscribeHandler(res : communication) {
         const fleaderboardScore = await client.zRangeWithScores(`${res.data.room_id}:finalLeaderboardScore`,0,-1,{REV:true});
         let hostId : string;
         for(const id in list) {
+            if(check) break;
             if(list[id] == "Host") hostId = id;
             const socket = socketMap.get(id);
             if(socket && socket.OPEN) {
@@ -164,7 +176,8 @@ async function subscribeHandler(res : communication) {
             const tdata = JSON.parse(room_detail); 
             await client.set(`${channel}`,JSON.stringify({
                 userId : tdata.userId,
-                status : false
+                status : false,
+                count : tdata.count
             }));
         }
 
@@ -213,6 +226,7 @@ async function exitHandler(userId : string) {
             //decrease the count
             const room_detail = await client.get(`${response}`);
             const data = JSON.parse(room_detail!);
+            // console.log(room_detail);
             await client.set(response,JSON.stringify({
                 status : data.status,
                 userId : data.userId,
@@ -220,7 +234,7 @@ async function exitHandler(userId : string) {
             }));
             //push the updated list
             const list = await client.hGetAll(`${response}:clients`);
-            pushList(list);
+            if(flag) pushList(list);
         }
 
     } 
@@ -307,7 +321,7 @@ serverSocket.on('connection',async (clientSocket : WebSocket)=>{
         }
         else if(res.code == 2) {
             //user responds to question
-            responseSubmitHandler(res.data.userId,res.data.ques,res.data.ans,res.data.room_id);
+            await responseSubmitHandler(res.data.userId,res.data.ques,res.data.ans,res.data.room_id);
         }
         else if(res.code == 3) {
             //user requesting to exit from room
