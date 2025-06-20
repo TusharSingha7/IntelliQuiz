@@ -38,11 +38,7 @@ export default function SubmitFile({func , loader} : {
         formData.append("username",username);
         formData.append("userId",userId || "");
         try {
-            const response = await axios.post('/api/v1',formData,{
-                headers : {
-                    "Content-Type" : "multipart/form-data"
-                }
-            });
+            const response = await axios.post('/api/v1',formData);
 
             if(response && response.data) {
                 router.push(`/enter/${response.data.roomId}`)
@@ -56,9 +52,7 @@ export default function SubmitFile({func , loader} : {
             alert(error);
             console.log(error);
         }
-        
     }
-
     useEffect(()=>{
         setUsername(localStorage.getItem('username') || "");
     },[])
