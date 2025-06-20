@@ -244,48 +244,64 @@ else if(code == 3) {
 else if(code == 4) {
     //exit the room logic 
     //fethc the room the user is in curently 
-    const response = await client.get(`${userId}_${username}`);
-    if(response) {
-        //delete the user entry 
-        await client.del(`${userId}_${username}`);
-        //remove from clinets , leaderboards ( time and score , final and normal)
-        //delete the room if room becomes empty 
-        await client.hDel(`${response}:clients`,`${userId}_${username}`);
-        //remove from leaderboards
-        await client.zRem(`${response}:leaderboardScore`, `${userId}_${username}`);
-        await client.zRem(`${response}:finalLeaderboardScore`, `${userId}_${username}`);
-        await client.zRem(`${response}:leaderboardTime`, `${userId}_${username}`);
-        await client.zRem(`${response}:finalLeaderboardTime`, `${userId}_${username}`);
-        //delete the room if host leaves the room 
-        const room_detail = await client.get(`${response}`);
-        const data = JSON.parse(room_detail!);
-        if(data.userId == `${userId}_${username}`) {
-            //delete the room host left the room 
-            await client.del(`${response}:leaderboardScore`);
-            await client.del(`${response}:finalLeaderboardScore`);
-            await client.del(`${response}:leaderboardTime`);
-            await client.del(`${response}:finalLeaderboardTime`);
-            await client.del(`${response}:clients`);
-            await client.del(`${response}:list`);
-            await client.del(`${response}`);
-        } 
+        const response = await client.get(`${userId}_${username}`);
+        if(response) {
+            //delete the user entry 
+            await client.del(`${userId}_${username}`);
+            //remove from clinets , leaderboards ( time and score , final and normal)
+            //delete the room if room becomes empty 
+            await client.hDel(`${response}:clients`,`${userId}_${username}`);
+            //remove from leaderboards
+            await client.zRem(`${response}:leaderboardScore`, `${userId}_${username}`);
+            await client.zRem(`${response}:finalLeaderboardScore`, `${userId}_${username}`);
+            await client.zRem(`${response}:leaderboardTime`, `${userId}_${username}`);
+            await client.zRem(`${response}:finalLeaderboardTime`, `${userId}_${username}`);
+            //delete the room if host leaves the room 
+            const room_detail = await client.get(`${response}`);
+            const data = JSON.parse(room_detail!);
+            if(data.userId == `${userId}_${username}`) {
+                //delete the room host left the room
+                await client.del(`${response}:leaderboardScore`);
+                await client.del(`${response}:finalLeaderboardScore`);
+                await client.del(`${response}:leaderboardTime`);
+                await client.del(`${response}:finalLeaderboardTime`);
+                const clinetsList = await client.hGetAll(`${response}:clients`)
+                await client.del(`${response}:clients`);
+                await client.del(`${response}:list`);
+                await client.del(`${response}`);
+                //delete entries for all clinets also 
+                for(const id in clinetsList) {
+                    await client.del(id);
+                }
+            } 
+            else {
+                //decrease the count
+                const room_detail = await client.get(`${response}`);
+                const data = JSON.parse(room_detail!);
+                // console.log(room_detail);
+                await client.set(response,JSON.stringify({
+                    status : data.status,
+                    userId : data.userId,
+                    count : data.count - 1
+                }));
+            }
+            return new NextResponse(JSON.stringify({
+                roomId : response,
+                code : 1,
+                message : "user Exited"
+            }),{
+                status : 200
+            });
+        }
         return new NextResponse(JSON.stringify({
-            roomId : response,
-            code : 1,
-            message : "user exited from the room"
+            roomId : null,
+            code : 0,
+            message : "user is not in any room"
         }),{
-            status : 200
+            status : 404
         });
-    }
-    return new NextResponse(JSON.stringify({
-        roomId : null,
-        code : 0,
-        message : "user is not in any room"
-    }),{
-        status : 404
-    });
-}
 
+    }
 
 return new NextResponse(JSON.stringify({
     code : 0,

@@ -153,16 +153,30 @@ export default function RoomPage({params} : {
                 <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg mr-2" onClick={async ()=>{
                     //do server side logic here
                     try {
-                        socket.current?.send(JSON.stringify({
-                            code : 3,
-                            data : {
-                                userId : user_id
-                            }
-                        }));
+                        if(socket.current && !socket.current.CLOSED && !socket.current.CLOSING) {
+                            console.log("call by socket")
+                            socket.current.send(JSON.stringify({
+                                code : 3,
+                                data : {
+                                    userId : user_id
+                                }
+                            }));
+                        }
+                        else {
+                            console.log("call by nextks")
+                            const response = await axios.post('/api/v2',{
+                                code : 4,
+                                userId : user_id.split('_')[0],
+                                username : user_id.split('_')[1],
+                                topicDescription : "",
+                                questionsCount : 0,
+                                room_id : room_id
+                            });
+                            if(response) router.push('/enter');
+                        }
                     }catch(error) {
                         console.log("sending error " +  error + user_id);
                     }
-                    router.push('/enter')
                 }}>Exit</button>
                 {showStarButton && <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg" 
                 onClick={async ()=>{

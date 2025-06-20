@@ -84,8 +84,8 @@ export default function SubmitFile({func , loader} : {
                             if (!isValidType) {
                             setFileError("Only .pdf and .docx files are allowed");
                             setIsFileValid(false);
-                            } else if (sizeInMB > 1) {
-                            setFileError("File size exceeds 1MB limit");
+                            } else if (sizeInMB > 2) {
+                            setFileError("File size exceeds 2MB limit");
                             setIsFileValid(false);
                             } else {
                             setFileError("");
