@@ -54,6 +54,7 @@ export default function SubmitFile({func , loader} : {
         }catch(error) {
             loader(false);
             alert(error);
+            console.log(error);
         }
         
     }
