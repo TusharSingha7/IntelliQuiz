@@ -49,11 +49,11 @@ export default function SubmitFile({func , loader} : {
             }
             else {
                 loader(false);
-                alert("try again or try again later");
+                alert("Request failed");
             }
-        }catch {
+        }catch(error) {
             loader(false);
-            alert("try again or try again later");
+            alert(error);
         }
         
     }
