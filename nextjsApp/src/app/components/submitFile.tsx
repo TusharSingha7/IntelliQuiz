@@ -5,6 +5,7 @@ import {Label} from '@/src/components/ui/label'
 import { Button } from "@/src/components/ui/button";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Dispatch, SetStateAction } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function SubmitFile({func , loader} : {
@@ -37,14 +38,10 @@ export default function SubmitFile({func , loader} : {
         formData.append("username",username);
         formData.append("userId",userId || "");
         try {
-            const response = await fetch("/api/v1", {
-                method: "POST",
-                body: formData,
-                });
-                console.log(response);
-            if(response.ok) {
-                const data = await response.json();
-                router.push(`/enter/${data.roomId}`)
+            const response = await axios.post('/api/v1',formData);
+
+            if(response && response.data) {
+                router.push(`/enter/${response.data.roomId}`)
             }
             else {
                 loader(false);
@@ -55,7 +52,9 @@ export default function SubmitFile({func , loader} : {
             alert(error);
             console.log(error);
         }
+        
     }
+
     useEffect(()=>{
         setUsername(localStorage.getItem('username') || "");
     },[])
