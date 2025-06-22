@@ -252,6 +252,16 @@ async function exitHandler(userId : string) {
                 userId : data.userId,
                 count : data.count - 1
             }));
+            //exit the user
+            const socket = socketMap.get(userId);
+            if(socket && socket.OPEN) {
+                socket.send(JSON.stringify({
+                    code : 7,
+                    data : {
+
+                    }
+                }))
+            }
             //push the updated list
             const list = await client.hGetAll(`${response}:clients`);
             if(flag) pushList(list);
