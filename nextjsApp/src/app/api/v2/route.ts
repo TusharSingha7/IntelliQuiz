@@ -2,12 +2,12 @@ import { NextRequest , NextResponse } from "next/server";
 import { createClient } from "redis";
 import { GoogleGenAI } from "@google/genai";
 
-const redisPassword = process.env.NEXT_PUBLIC_PASSWORD;
+const redisPassword = process.env.PASSWORD;
 
 export async function POST(req : NextRequest) {
 
 let client;
-const googleapi = process.env.NEXT_PUBLIC_GOOGLEAPI;
+const googleapi = process.env.GOOGLEAPI;
 
 try {
 client = createClient({

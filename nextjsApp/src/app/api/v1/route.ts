@@ -1,15 +1,15 @@
 import { NextRequest , NextResponse } from "next/server";
 import { createClient } from "redis";
 import { GoogleGenAI } from "@google/genai";
-import pdfParse from 'pdf-parse';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import mammoth from 'mammoth';
 
-const redisPassword = process.env.NEXT_PUBLIC_PASSWORD;
+const redisPassword = process.env.PASSWORD;
 
 export async function POST(req : NextRequest) {
 
 let client;
-const googleapi = process.env.NEXT_PUBLIC_GOOGLEAPI;
+const googleapi = process.env.GOOGLEAPI;
 
 try {
 
@@ -38,7 +38,7 @@ await client.connect();
     let final_text = "";
 
     if (file.type === 'application/pdf') {
-        const data = await pdfParse(buffer);
+        const data = await pdfParse(buffer) as { text: string };
         final_text = data.text;              // all extracted PDF text
     }
     else if (

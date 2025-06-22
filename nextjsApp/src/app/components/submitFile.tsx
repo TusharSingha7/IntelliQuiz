@@ -39,7 +39,7 @@ export default function SubmitFile({func , loader} : {
         formData.append("userId",userId || "");
         try {
             const response = await axios.post('/api/v1',formData);
-
+            console.log(response);
             if(response && response.data) {
                 router.push(`/enter/${response.data.roomId}`)
             }
