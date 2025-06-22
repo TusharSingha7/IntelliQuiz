@@ -219,6 +219,15 @@ async function exitHandler(userId : string) {
             await client.del(`${response}:clients`);
             await client.del(`${response}:list`);
             await client.del(`${response}`);
+            const socket = socketMap.get(userId);
+            if(socket && socket.OPEN) {
+                socket.send(JSON.stringify({
+                    code : 7,
+                    data : {
+
+                    }
+                }))
+            }
             //delete entries for all clinets also 
             for(const id in clinetsList) {
                 const socket = socketMap.get(id);
