@@ -29,6 +29,19 @@ await client.connect();
     const username = res.get('username');
     const userId = res.get('userId');
 
+    const response = await client.get(`${userId}_${username}`);
+
+    if(response) {
+        return NextResponse.json({
+        roomId : response,
+        code : 0,
+        message : "Already in an existing room exit it first"
+
+        }, {
+            status : 404
+        })
+    }
+
     if (!file || !(file instanceof File)) {
         return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
@@ -134,13 +147,13 @@ __INVALID_TOPIC__`;
         questions_list = JSON.parse(rawList);
     }
     else {
-        return new NextResponse(JSON.stringify({
+        return NextResponse.json({
             code : 0,
             roomId : null,
             message : "Invalid data inside file"
 
-        }) , {
-            status : 500
+        } , {
+            status : 422
         })
     }
     //set the question list now and create the room
@@ -171,23 +184,23 @@ __INVALID_TOPIC__`;
 
         await client.set(`${roomId}:list`,JSON.stringify(questions_list))
 
-        return new NextResponse(JSON.stringify({
+        return NextResponse.json({
             code : 1,
             roomId : roomId,
             message : "Room Created"
 
-        }), {
+        }, {
             status : 200
         });
 }
 catch(error) {
-    return new NextResponse(JSON.stringify({
+    return NextResponse.json({
       code: 10,
-      errorMessage: error instanceof Error ? error.message : String(error),
+      message: error instanceof Error ? error.message : String(error),
       roomId: null
-    }), {
-      status: 500
-    });
+    }, {
+        status : 500
+    })
 }
 finally {
     if(client) await client.quit();

@@ -153,7 +153,7 @@ export default function RoomPage({params} : {
                 <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg mr-2" onClick={async ()=>{
                     //do server side logic here
                     try {
-                        if(socket.current && !socket.current.CLOSED && !socket.current.CLOSING) {
+                        if(socket.current && socket.current.readyState == socket.current.OPEN) {
                             console.log("call by socket")
                             socket.current.send(JSON.stringify({
                                 code : 3,
@@ -163,7 +163,7 @@ export default function RoomPage({params} : {
                             }));
                         }
                         else {
-                            console.log("call by nextks")
+                            console.log("call by nextjs")
                             const response = await axios.post('/api/v2',{
                                 code : 4,
                                 userId : user_id.split('_')[0],
