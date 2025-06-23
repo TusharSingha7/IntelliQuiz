@@ -104,8 +104,8 @@ function EnterLoading() {
     <div role="status" className=" animate-pulse">
         <div className="grid grid-cols-2 h-screen text-white bg-red-100">
             <div className="flex flex-col gap-4 min-h-screen justify-center">
-                    <button className="border w-56 mx-auto p-4 font-bold border bg-gray-400">AI Generated Quiz</button>
-                    <button className="border w-56 mx-auto p-4 font-bold border bg-gray-400">Create AI Generated Multiplayer Quiz</button>
+                    <button className="border w-56 mx-auto p-4 font-bold border bg-gray-400">Generate Quiz out of Text</button>
+                    <button className="border w-56 mx-auto p-4 font-bold border bg-gray-400">Generate Custom AI quiz</button>
                     <button className="border w-56 mx-auto p-4 font-bold border bg-gray-400">Join Multiplayer Quiz</button>
             </div>
             <div className="relative flex flex-col gap-4 min-h-full justify-center items-center">
