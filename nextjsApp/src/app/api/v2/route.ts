@@ -146,7 +146,7 @@ else if(code == 2) {
             const data = JSON.parse(data_str);
             console.log(data);
             console.log(typeof data.count);
-            if(data.status == false && data.count < 10) {
+            if(data.status == false && data.count < 1000) {
                 //join him in the room
                 //update list of clients
                 await client.hSet(`${room_id}:clients`,`${userId}_${username}`,"Participant");
