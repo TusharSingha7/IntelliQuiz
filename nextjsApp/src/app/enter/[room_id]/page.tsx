@@ -144,66 +144,79 @@ export default function RoomPage({params} : {
         }
     }, [room_id, websocket, router])
 
-        return <>
-        <div className="flex">
-            <div className="font-bold text-2xl p-2 grow-[6] pr-10 flex justify-end items-center">
+        return (
+          <>
+            <div className="flex">
+              <div className="font-bold text-2xl p-2 grow-[6] pr-10 flex justify-end items-center">
                 <span>Room Id : {room_id}</span>
-            </div>
-            <div className=" grow-[4] pr-5 flex justify-end p-2">
-                <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg mr-2" onClick={async ()=>{
+              </div>
+              <div className=" grow-[4] pr-5 flex justify-end p-2">
+                <button
+                  className="px-4 border border-black rounded py-2 font-bold shadow-lg mr-2 hover:text-white hover:bg-black"
+                  onClick={async () => {
                     //do server side logic here
                     try {
-                        if(socket.current && socket.current.readyState == socket.current.OPEN) {
-                            console.log("call by socket")
-                            socket.current.send(JSON.stringify({
-                                code : 3,
-                                data : {
-                                    userId : user_id
-                                }
-                            }));
-                        }
-                        else {
-                            console.log("call by nextjs")
-                            const response = await axios.post('/api/v2',{
-                                code : 4,
-                                userId : user_id.split('_')[0],
-                                username : user_id.split('_')[1],
-                                topicDescription : "",
-                                questionsCount : 0,
-                                room_id : room_id
-                            });
-                            if(response) router.push('/enter');
-                        }
-                    }catch(error) {
-                        console.log("sending error " +  error + user_id);
+                      if (
+                        socket.current &&
+                        socket.current.readyState == socket.current.OPEN
+                      ) {
+                        console.log("call by socket");
+                        socket.current.send(
+                          JSON.stringify({
+                            code: 3,
+                            data: {
+                              userId: user_id,
+                            },
+                          })
+                        );
+                      } else {
+                        console.log("call by nextjs");
+                        const response = await axios.post("/api/v2", {
+                          code: 4,
+                          userId: user_id.split("_")[0],
+                          username: user_id.split("_")[1],
+                          topicDescription: "",
+                          questionsCount: 0,
+                          room_id: room_id,
+                        });
+                        if (response) router.push("/enter");
+                      }
+                    } catch (error) {
+                      console.log("sending error " + error + user_id);
                     }
-                }}>Exit</button>
-                {showStarButton && <button className="px-4 border border-black rounded py-2 font-bold shadow shadow-lg" 
-                onClick={async ()=>{
-                    const response = await axios.post('/api/v2',{
-                    userId : localStorage.getItem("intelli-quiz-userId"),
-                    code : 3,
-                    username : localStorage.getItem('username'),
-                    topicDescription : "",
-                    room_id : room_id,
-                    questionsCount : 0
-                });
-                if(response) setStartButton(false);
-                }}>
+                  }}
+                >
+                  Exit
+                </button>
+                {showStarButton && (
+                  <button
+                    className="px-4 border border-black rounded py-2 font-bold shadow-lg hover:text-white hover:bg-black"
+                    onClick={async () => {
+                      const response = await axios.post("/api/v2", {
+                        userId: localStorage.getItem("intelli-quiz-userId"),
+                        code: 3,
+                        username: localStorage.getItem("username"),
+                        topicDescription: "",
+                        room_id: room_id,
+                        questionsCount: 0,
+                      });
+                      if (response) setStartButton(false);
+                    }}
+                  >
                     Start Quiz
-                    </button>}
+                  </button>
+                )}
+              </div>
             </div>
-        </div>
-        <div className="h-screen relative">
-            {component}
-        </div>
-    </>
+            <div className="h-screen relative">{component}</div>
+          </>
+        );
     
 }
 
 function PlayerList({userList , user_id} : {userList : object , user_id : string}) {
     return <>
-    <div className="font-bold text-4xl text-center border-y-2 p-2">Waiting List</div>
+    <div className="font-bold text-4xl text-center border-t-2 p-2">Waiting List</div>
     <li  className="grid grid-cols-2 text-center text-2xl font-bold p-2 border-b-2">
                 <span> Candidate </span>
                 <span> Role </span>
@@ -219,5 +232,5 @@ function PlayerList({userList , user_id} : {userList : object , user_id : string
         ))}
     </ul>
     </>
-
+    
 }

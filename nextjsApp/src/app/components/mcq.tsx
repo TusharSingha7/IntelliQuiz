@@ -32,7 +32,7 @@ export default function MCQ({props , ref ,room_id} : {props : mcq_type , ref : R
     return (<>
         <div className="min-h-full pb-10">
             <div className="w-[70%] min-h-[70%] flex flex-col items-center rounded-lg shadow-xl border mx-auto">
-                <div className="text-4xl font-bold border p-2 rounded text-center">
+                <div className="text-4xl font-bold p-2 rounded text-center">
                     <div>{props.question}</div><br/>
                     <ProgressBar resetkey={props.question} key={props.question} />
                 </div>
