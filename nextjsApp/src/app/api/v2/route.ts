@@ -38,7 +38,7 @@ if(code == 1) {
             - Do NOT attempt to generate questions for invalid, unclear, or unrecognized topics.
 
             If the topic is valid:
-            - Options of each question should be very close and confusing to answer.
+            - Options of each question should be very close , meaningful and confusing to answer.
             - Each question must be in the following strict JSON format with four options each, and all questions must be enclosed in a single JSON array:
             [
             {
@@ -48,6 +48,7 @@ if(code == 1) {
             },
             ...
             ]
+            - Correct Option for all the questions must be shuffled 
 
             Instructions:
             - Only return the JSON array of questions, with no extra text, markdown, or formatting.

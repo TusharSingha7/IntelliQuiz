@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export default function Header() {
     return <>
-    <div className="min-h-[10%] bg-[#640df2] shadow-lg shadow-white/40 z-10">
+    <div className="min-h-[10%] bg-[#640df2] shadow-lg hover:shadow-white/40 z-10">
           <div className='flex'>
             <div className=' flex-1 flex justify-start items-center pl-5 gap-5'>
               <Image
